@@ -7,10 +7,10 @@ IP_to_Node_Index = {}
 Index_to_IP = {}
 suspect_matrix = [[]]
 global_fault_vector = []
+global_state_map = defaultdict(defaultdict())
 
 def setMapping(ip):
     
-
     global node_index
     global global_fault_vector
     global Index_to_IP
@@ -45,6 +45,15 @@ def updateSuspectMatrix(ip, fault_vector):
     print(global_fault_vector)
 
 
+def sendEpStateMap(ip, epStateMap):
+    reveiveStateMap(ip, epStateMap)
+    
+
+def receiveStateMap(ip, epStateMap):
+    global global_state_map
+    global_state_map[ip] = epStateMap
+
+
 def doConsensus():
     global global_fault_vector
 
@@ -64,5 +73,44 @@ print("Listening on port 8000...")
 server.register_function(setMapping, "setMapping")
 server.register_function(getMapping, "getMapping")
 server.register_function(updateSuspectMatrix, "updateSuspectMatrix")
+
+
+
+if __name__ == "__main__":
+
+    # configuration_file, bootstrap_server, server_id, no_hash = get_arguments()
+    
+    start_gossip_node(node)
+    
+    # register this node to monitoring node
+    proxy.setMapping(str(server_id)+str(port))
+
+    flag = 0
+    scheduler.enter(1, 1, stabilize_call, (node,))
+    stabilization_thread = threading.Thread(target=scheduler.run, args=(True,))
+    stabilization_thread.start()
+    #update heartbeat every 1 sec
+    # happens internally
+    # node.updateHearbeat()
+    # rt = RepeatedTimer(1, node.updateHearbeat())
+    # threading.Timer(Constants.WAIT_SECONDS_HEARTBEAT, node.updateHearbeat()).start()
+    while True:
+        # time.sleep(5)
+        # node.sendSYN()
+
+        # while flag:
+
+        # t = threading.Timer(Constants.WAIT_SECONDS_HEARTBEAT, node.updateHearbeat()).start()
+
+        print("\n\nRunning with server id : " + str(server_id))
+        console_input = input("1. \"stop\" to shutdown gossip node\n2. \"contact\" to contact one of the node\n"
+                              "Enter your input:")
+        
+        if console_input.strip() == "stop":
+            stop_gossip_node()
+            break
+
+        if console_input.strip() == "contact":
+            flag = 1
 
 server.serve_forever()

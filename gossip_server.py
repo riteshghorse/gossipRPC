@@ -1,7 +1,7 @@
 # done
 
 import os
-from rpc import XMLRPCChordServerManager
+from rpc import XMLRPCGossipManager
 from configuration_manager import ConfigurationManager
 import sched
 import time
@@ -15,18 +15,18 @@ import threading
 import Constants
 from random_open_port import random_port
 from RepeatedTimer import RepeatedTimer
-
+import xmlrpc.client
 
 
 scheduler = sched.scheduler(time.time, time.sleep)
+proxy = xmlrpc.client.ServerProxy("http://localhost:8000/") 
+
+def start_gossip_node(gossip_node):
+    XMLRPCGossipManager.start_server(gossip_node)
 
 
-def start_chord_node(chord_node):
-    XMLRPCChordServerManager.start_server(chord_node)
-
-
-def stop_chord_node():
-    XMLRPCChordServerManager.stop_server()
+def stop_gossip_node():
+    XMLRPCGossipManager.stop_server()
 
 
 def get_arguments():
@@ -53,6 +53,12 @@ def stabilize_call(node):
 
 def scheduleGossip(node):
     node.startGossip(Constants.RANDOM_GOSSIP)
+
+    # send end point state map to the monitoring node only when
+    # it has done handshake with all live  nodes
+    # if len(node.live_nodes) == len(node.endpoint_state_map):
+    #     proxy.sendEpStateMap(node.ip, node.endpoint_state_map)
+    
     scheduler.enter(5, 2, scheduleGossip, (node,))
 
 if __name__ == "__main__":
@@ -77,7 +83,11 @@ if __name__ == "__main__":
     server_id = random.randint(1, 1000)
     node = Node(server_ip, server_port, server_id)
 
-    start_chord_node(node)
+    start_gossip_node(node)
+    
+    # register this node to monitoring node
+    proxy.setMapping(str(server_id)+str(server_port))
+
     flag = 0
     scheduler.enter(1, 1, stabilize_call, (node,))
     stabilization_thread = threading.Thread(target=scheduler.run, args=(True,))
@@ -95,12 +105,10 @@ if __name__ == "__main__":
 
         # t = threading.Timer(Constants.WAIT_SECONDS_HEARTBEAT, node.updateHearbeat()).start()
 
-        print("\n\nRunning with server id : " + str(server_id))
-        console_input = input("1. \"stop\" to shutdown chord node\n2. \"contact\" to contact one of the node\n"
-                              "Enter your input:")
+        console_input = input()
         
         if console_input.strip() == "stop":
-            stop_chord_node()
+            stop_gossip_node()
             break
 
         if console_input.strip() == "contact":

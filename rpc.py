@@ -6,7 +6,7 @@ import socketserver
 from configuration_manager import ConfigurationManager
 
 
-class ChordRPCRequestHandler(server.SimpleXMLRPCRequestHandler):
+class GossipRPCRequestHandler(server.SimpleXMLRPCRequestHandler):
     rpc_paths = ('/', '/RPC2',)
 
 
@@ -14,34 +14,34 @@ class AsyncXMLRPCServer(socketserver.ThreadingMixIn, server.SimpleXMLRPCServer):
     pass
 
 
-class XMLRPCChordServerManager(object):
+class XMLRPCGossipManager(object):
 
     server = None
     server_thread = None
 
     @staticmethod
-    def start_server(chord_node):
+    def start_server(gossip_node):
 
         ip = ConfigurationManager.get_configuration().get_gossip_host()
         port = ConfigurationManager.get_configuration().get_gossip_port()
 
         print(ip, port)
 
-        if not XMLRPCChordServerManager.server and not XMLRPCChordServerManager.server_thread:
-            XMLRPCChordServerManager.server = AsyncXMLRPCServer((ip, port), ChordRPCRequestHandler, allow_none=True,
+        if not XMLRPCGossipManager.server and not XMLRPCGossipManager.server_thread:
+            XMLRPCGossipManager.server = AsyncXMLRPCServer((ip, port), GossipRPCRequestHandler, allow_none=True,
                                                                 logRequests=False)
-            XMLRPCChordServerManager.server.register_instance(chord_node)
-            XMLRPCChordServerManager.server_thread = \
-                threading.Thread(target=XMLRPCChordServerManager.server.serve_forever)
-            XMLRPCChordServerManager.server_thread.daemon = True
-            XMLRPCChordServerManager.server_thread.start()
+            XMLRPCGossipManager.server.register_instance(gossip_node)
+            XMLRPCGossipManager.server_thread = \
+                threading.Thread(target=XMLRPCGossipManager.server.serve_forever)
+            XMLRPCGossipManager.server_thread.daemon = True
+            XMLRPCGossipManager.server_thread.start()
 
     @staticmethod
     def stop_server():
 
-        if XMLRPCChordServerManager.server and XMLRPCChordServerManager.server_thread:
-            XMLRPCChordServerManager.server.shutdown()
-            XMLRPCChordServerManager.server.server_close()
+        if XMLRPCGossipManager.server and XMLRPCGossipManager.server_thread:
+            XMLRPCGossipManager.server.shutdown()
+            XMLRPCGossipManager.server.server_close()
 
 
 class ServerThread(threading.Thread):
@@ -59,32 +59,32 @@ class ServerThread(threading.Thread):
         self.stop_event.set()
 
 
-class XMLRPCChordServerManagerTest(object):
+class XMLRPCGossipManagerTest(object):
 
     server = [None]*5
     server_thread = [None]*5
 
     @staticmethod
-    def start_server(chord_node, i):
+    def start_server(gossip_node, i):
 
         ip = ConfigurationManager.get_configuration().get_advertised_ip()
         port = ConfigurationManager.get_configuration().get_socket_port()
 
-        if not XMLRPCChordServerManagerTest.server[i] and not XMLRPCChordServerManagerTest.server_thread[i]:
-            XMLRPCChordServerManagerTest.server[i] = AsyncXMLRPCServer((ip, port), ChordRPCRequestHandler, allow_none=True,
+        if not XMLRPCGossipManagerTest.server[i] and not XMLRPCGossipManagerTest.server_thread[i]:
+            XMLRPCGossipManagerTest.server[i] = AsyncXMLRPCServer((ip, port), GossipRPCRequestHandler, allow_none=True,
                                                                 logRequests=False)
-            XMLRPCChordServerManagerTest.server[i].register_instance(chord_node)
-            XMLRPCChordServerManagerTest.server_thread[i] = ServerThread(XMLRPCChordServerManagerTest.server[i])
-                #threading.Thread(target=XMLRPCChordServerManagerTest.server[i].serve_forever)
-            XMLRPCChordServerManagerTest.server_thread[i].daemon = False
-            XMLRPCChordServerManagerTest.server_thread[i].start()
+            XMLRPCGossipManagerTest.server[i].register_instance(gossip_node)
+            XMLRPCGossipManagerTest.server_thread[i] = ServerThread(XMLRPCGossipManagerTest.server[i])
+                #threading.Thread(target=XMLRPCGossipManagerTest.server[i].serve_forever)
+            XMLRPCGossipManagerTest.server_thread[i].daemon = False
+            XMLRPCGossipManagerTest.server_thread[i].start()
 
     @staticmethod
     def stop_server(i):
 
-        if XMLRPCChordServerManagerTest.server[i] and XMLRPCChordServerManagerTest.server_thread[i]:
-            #XMLRPCChordServerManagerTest.server[i].shutdown()
-            XMLRPCChordServerManagerTest.server[i].server_close()
-            XMLRPCChordServerManagerTest.server[i] = None
-            XMLRPCChordServerManagerTest.server_thread[i].stop()
-            XMLRPCChordServerManagerTest.server_thread[i] = None
+        if XMLRPCGossipManagerTest.server[i] and XMLRPCGossipManagerTest.server_thread[i]:
+            #XMLRPCGossipManagerTest.server[i].shutdown()
+            XMLRPCGossipManagerTest.server[i].server_close()
+            XMLRPCGossipManagerTest.server[i] = None
+            XMLRPCGossipManagerTest.server_thread[i].stop()
+            XMLRPCGossipManagerTest.server_thread[i] = None
