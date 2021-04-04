@@ -88,9 +88,11 @@ class Node(object):
 
         # retrieve meta-app states of requested IPs
         for ip in deltaGDigest:
-            epStateMap[ip] = self.endpoint_state_map[ip]
+            if ip in self.endpoint_state_map:
+                epStateMap[ip] = self.endpoint_state_map[ip]
+                print('////////////////////////////')
 
-        print(deltaEpStateMap)
+        print('+++++++++++++++++++delta map',deltaEpStateMap)
         #update my own meta-apps in endpoint
         for ip, epState in deltaEpStateMap.items():
             # print(ip, epState )
@@ -106,7 +108,8 @@ class Node(object):
                 #gDIgest list will be forwarded in next rounds of gossip hence it has to be updated
                 self.gDigestList[ip] = [self.endpoint_state_map[ip]['appState']['App_version'], self.endpoint_state_map[ip]['heartBeat']['generation'], self.endpoint_state_map[ip]['heartBeat']['heartBeatValue']]
         # updating timestamp for clientIp
-        self.endpoint_state_map[clientIp]['last_updated_time'] = getTimeStamp()
+        if clientIp in self.endpoint_state_map:
+            self.endpoint_state_map[clientIp]['last_updated_time'] = getTimeStamp()
 
         print("\nACK handled... sending ack2")
         
@@ -149,6 +152,7 @@ class Node(object):
         # updating timestamp of clientIp
         self.endpoint_state_map[clientIp]['last_updated_time'] = getTimeStamp()
         print('\n ACK2 processed... complete handshake')
+        print(self.handshake_nodes, self.live_nodes)
         # print((self.handshake_nodes, self.live_nodes))
         # print(self.endpoint_state_map)
 
@@ -169,18 +173,26 @@ class Node(object):
         if gossip_protocol == Constants.RANDOM_GOSSIP:
             # print(self.gDigestList)
             digestList = copy.deepcopy(self.gDigestList)
+
             digestList.pop(self.ip, None)
+            # self.gDigestList['localhost:5003'] = [1,2,3]
+            # print(self.gDigestList)
             # print(digestList, self.gDigestList)
             from gossip_server import scheduler, scheduleGossip
             if(len(digestList) <= 3):
                 for ip, digest in digestList.items():
+                    print('in start+-+-+-+-+-+-+-+-+-+-+++-+--++-',self.handshake_nodes)
+                    if ip == self.ip:
+                        continue
+                    
                     if self.isInHandshake(ip):
                         client =  xmlrpc.client.ServerProxy('http://' + ip + '/RPC2')
                         client.receiveGossip(self.gDigestList, self.ip)
                     else:
-                        print('--------------------> sending syn'+self.ip)
-                        client =  xmlrpc.client.ServerProxy('http://' + ip + '/RPC2')
-                        client.sendSYN(ip)
+                        print('--------------------> sending syn'+ip)
+                        # client =  xmlrpc.client.ServerProxy('http://' + ip + '/RPC2')
+                        # client.sendSYN(ip)
+                        self.sendSYN(ip)
                         # print('doing it')
                 
 
@@ -188,7 +200,7 @@ class Node(object):
         #TODO: add application version in later stage as well for comparison
         print('gossip received from--\n' + clientIp, digestList)
         print('my digest', self.gDigestList)
-
+        currenttList = copy.deepcopy(self.gDigestList)
         for ip, digest in digestList.items():
             if ip == self.ip:
                 continue
@@ -202,22 +214,25 @@ class Node(object):
             if ip in self.gDigestList:
                 print('if')
                 if self.gDigestList[ip][1] < digest[1]:
-                    self.gDigestList[ip] = digest
+                    currenttList[ip] = digest
                     self.endpoint_state_map[ip]['appState']['App_version'] = digest[0]
                     self.endpoint_state_map[ip]['heartBeat']['generation'] = digest[1]
                     self.endpoint_state_map[ip]['heartBeat']['heartBeatValue'] = digest[2]
                 elif self.gDigestList[ip][2] < digest[2] and self.gDigestList[ip][1] == digest[1]:
                     self.endpoint_state_map[ip]['heartBeat']['heartBeatValue'] = digest[2]
-                    self.gDigestList[ip][2] = digest[2]
+                    currenttList[ip][2] = digest[2]
             else:
                 print('else')
         #         print('------>'+clientIp)
                 print(self.gDigestList, (ip, digest))
                 # self.gDigestList.update({ip:digest})
-                # self.gDigestList[ip] = digest
-                argdict = {ip:digest}
-                self.gDigestList = {**self.gDigestList}
-
+                # self.gDigestList[ip] = []
+                currenttList[ip] = digest
+                print("Assignment complete -",  )
+                # argdict = {ip:digest}
+                # self.gDigestList = {**self.gDigestList}
+        self.gDigestList = currenttList
+        print('reassigned************************')
 
     def get_id_of_node(self, calling_id):
         print("Calling {} from {}.".format(self.id, calling_id))
