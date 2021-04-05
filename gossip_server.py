@@ -18,8 +18,9 @@ from RepeatedTimer import RepeatedTimer
 import xmlrpc.client
 
 
+monitor_client =  xmlrpc.client.ServerProxy('http://' + Constants.MONITOR_ADDRESS + '/RPC2')
 scheduler = sched.scheduler(time.time, time.sleep)
-proxy = xmlrpc.client.ServerProxy("http://localhost:8000/") 
+# proxy = xmlrpc.client.ServerProxy("http://localhost:8000/") 
 
 def start_gossip_node(gossip_node):
     XMLRPCGossipManager.start_server(gossip_node)
@@ -56,10 +57,17 @@ def scheduleGossip(node):
 
     # send end point state map to the monitoring node only when
     # it has done handshake with all live  nodes
-    # if len(node.live_nodes) == len(node.endpoint_state_map):
-    #     proxy.sendEpStateMap(node.ip, node.endpoint_state_map)
+    if len(node.live_nodes) == len(node.endpoint_state_map):
+        print('*******************************************')
+        print(node.message_count)
+        monitor_client.sendEpStateMap(node.ip, node.endpoint_state_map, node.message_count)
     
     scheduler.enter(5, 2, scheduleGossip, (node,))
+
+
+# def start_measuring(node):
+#     node.
+
 
 if __name__ == "__main__":
 
@@ -86,7 +94,7 @@ if __name__ == "__main__":
     start_gossip_node(node)
     
     # register this node to monitoring node
-    proxy.setMapping(str(server_id)+str(server_port))
+    monitor_client.setMapping(str(server_id)+str(server_port))
 
     flag = 0
     scheduler.enter(1, 1, stabilize_call, (node,))
@@ -105,13 +113,14 @@ if __name__ == "__main__":
 
         # t = threading.Timer(Constants.WAIT_SECONDS_HEARTBEAT, node.updateHearbeat()).start()
 
-        console_input = input()
+        console_input = input("\n1.connect\n2.consensus")
         
         if console_input.strip() == "stop":
+        
             stop_gossip_node()
             break
 
-        if console_input.strip() == "contact":
+        if console_input.strip() == "connect":
             flag = 1
             # pass
             #contact_ip = input("Enter ip/host of node to contact")
@@ -123,3 +132,5 @@ if __name__ == "__main__":
             scheduler.enter(5, 2, scheduleGossip, (node,))
             # node.sendACK2()
 
+        if console_input.strip() == "consensus":
+            start_measuring(node)

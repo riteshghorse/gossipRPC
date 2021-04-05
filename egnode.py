@@ -23,13 +23,13 @@ class Node(object):
         self.endpoint_state_map = {self.app_state["IP_Port"]: {'heartBeat': self.heart_beat_state, 'appState':self.app_state, 'last_updated_time': 0}}
         self.gDigestList = {self.app_state['IP_Port'] : [self.app_state['App_version'], self.heart_beat_state['generation'], self.heart_beat_state['heartBeatValue']]} 
         #{IP_Port:{'heartBeat':[version, generation], 'appState':[], 'last_msg_received': time}}
-        print(self.gDigestList)
+        # print(self.gDigestList)
         
         self.fault_vector = list()   
         self.live_nodes = list()
         self.dead_nodes = list()
         self.handshake_nodes = list()
-
+        self.message_count = 0
 
     def updateHearbeat(self):
         self.heart_beat_state["heartBeatValue"] += 1
@@ -49,6 +49,7 @@ class Node(object):
 
         Note: If only one node is present in gDigestList
         """
+        self.message_count += 1
         synDigest = SynGossipDigest(Constants.DEFAULT_CLUSTER, self.gDigestList)
         # print("\nin send")
         # if len(self.gDigestList) == 1:
@@ -67,6 +68,7 @@ class Node(object):
 
 
     def acceptSyn(self,synDigest, clientIp):
+        self.message_count += 1
         variable = SynVerbHandler(self)
         deltaGDigest, deltaEpStateMap = variable.handleSync(synDigest)
         
@@ -83,6 +85,7 @@ class Node(object):
 
     def acceptAck(self, deltaGDigest, deltaEpStateMap, clientIp):
         print('\nin accept ack')
+        self.message_count += 1
         epStateMap = {}
         # print((deltaGDigest, deltaEpStateMap, clientIp))
 
@@ -129,7 +132,7 @@ class Node(object):
 
     def acceptAck2(self, deltaEpStateMap, clientIp):
         print('\n in acceptAck 2')
-
+        self.message_count += 1
         for ip, epState in deltaEpStateMap.items():
             #update by comparing which has the latest heartbeat
             if ip in self.endpoint_state_map:
@@ -182,6 +185,7 @@ class Node(object):
 
             if(len(digestList) <= 3):
                 for ip, digest in digestList.items():
+                    self.message_count += 1
                     # print('in start+-+-+-+-+-+-+-+-+-+-+++-+--++-',self.handshake_nodes)
                     if ip == self.ip:
                         continue
@@ -198,7 +202,8 @@ class Node(object):
             else:
                 keyList = list(digestList.keys() - self.ip)
                 random_numbers = sample(range(0, len(keyList)), 3)
-                print('-------------------------------------------------')
+                # print('-------------------------------------------------')
+                self.message_count += 3
                 print(keyList, random_numbers)
                 for i in random_numbers:
                     ip = keyList[i]
@@ -213,6 +218,7 @@ class Node(object):
                         # print('doing it')
 
     def receiveGossip(self, digestList, clientIp):
+        
         #TODO: add application version in later stage as well for comparison
         print('gossip received from--\n' + clientIp, digestList)
         print('my digest', self.gDigestList)

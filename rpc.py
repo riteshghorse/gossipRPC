@@ -44,47 +44,47 @@ class XMLRPCGossipManager(object):
             XMLRPCGossipManager.server.server_close()
 
 
-class ServerThread(threading.Thread):
+# class ServerThread(threading.Thread):
 
-    def __init__(self, xml_server):
-        threading.Thread.__init__(self)
-        self._xml_server = xml_server
-        self.stop_event = threading.Event()
+#     def __init__(self, xml_server):
+#         threading.Thread.__init__(self)
+#         self._xml_server = xml_server
+#         self.stop_event = threading.Event()
 
-    def run(self):
-        while not self.stop_event.isSet():
-            self._xml_server.handle_request()
+#     def run(self):
+#         while not self.stop_event.isSet():
+#             self._xml_server.handle_request()
 
-    def stop(self):
-        self.stop_event.set()
+#     def stop(self):
+#         self.stop_event.set()
 
 
-class XMLRPCGossipManagerTest(object):
+# class XMLRPCGossipManagerTest(object):
 
-    server = [None]*5
-    server_thread = [None]*5
+#     server = [None]*5
+#     server_thread = [None]*5
 
-    @staticmethod
-    def start_server(gossip_node, i):
+#     @staticmethod
+#     def start_server(gossip_node, i):
 
-        ip = ConfigurationManager.get_configuration().get_advertised_ip()
-        port = ConfigurationManager.get_configuration().get_socket_port()
+#         ip = ConfigurationManager.get_configuration().get_advertised_ip()
+#         port = ConfigurationManager.get_configuration().get_socket_port()
 
-        if not XMLRPCGossipManagerTest.server[i] and not XMLRPCGossipManagerTest.server_thread[i]:
-            XMLRPCGossipManagerTest.server[i] = AsyncXMLRPCServer((ip, port), GossipRPCRequestHandler, allow_none=True,
-                                                                logRequests=False)
-            XMLRPCGossipManagerTest.server[i].register_instance(gossip_node)
-            XMLRPCGossipManagerTest.server_thread[i] = ServerThread(XMLRPCGossipManagerTest.server[i])
-                #threading.Thread(target=XMLRPCGossipManagerTest.server[i].serve_forever)
-            XMLRPCGossipManagerTest.server_thread[i].daemon = False
-            XMLRPCGossipManagerTest.server_thread[i].start()
+#         if not XMLRPCGossipManagerTest.server[i] and not XMLRPCGossipManagerTest.server_thread[i]:
+#             XMLRPCGossipManagerTest.server[i] = AsyncXMLRPCServer((ip, port), GossipRPCRequestHandler, allow_none=True,
+#                                                                 logRequests=False)
+#             XMLRPCGossipManagerTest.server[i].register_instance(gossip_node)
+#             XMLRPCGossipManagerTest.server_thread[i] = ServerThread(XMLRPCGossipManagerTest.server[i])
+#                 #threading.Thread(target=XMLRPCGossipManagerTest.server[i].serve_forever)
+#             XMLRPCGossipManagerTest.server_thread[i].daemon = False
+#             XMLRPCGossipManagerTest.server_thread[i].start()
 
-    @staticmethod
-    def stop_server(i):
+#     @staticmethod
+#     def stop_server(i):
 
-        if XMLRPCGossipManagerTest.server[i] and XMLRPCGossipManagerTest.server_thread[i]:
-            #XMLRPCGossipManagerTest.server[i].shutdown()
-            XMLRPCGossipManagerTest.server[i].server_close()
-            XMLRPCGossipManagerTest.server[i] = None
-            XMLRPCGossipManagerTest.server_thread[i].stop()
-            XMLRPCGossipManagerTest.server_thread[i] = None
+#         if XMLRPCGossipManagerTest.server[i] and XMLRPCGossipManagerTest.server_thread[i]:
+#             #XMLRPCGossipManagerTest.server[i].shutdown()
+#             XMLRPCGossipManagerTest.server[i].server_close()
+#             XMLRPCGossipManagerTest.server[i] = None
+#             XMLRPCGossipManagerTest.server_thread[i].stop()
+#             XMLRPCGossipManagerTest.server_thread[i] = None
