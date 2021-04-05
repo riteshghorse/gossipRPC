@@ -1,15 +1,18 @@
-FROM python:3.8
+FROM python:3.8-slim
 
-RUN [ "mkdir", "-p", "/usr/src/app" ]
+RUN useradd --create-home --shell /bin/bash app_user
 
-WORKDIR /usr/src/app
+WORKDIR /home/app_user
 
-#COPY requirements.txt requirements.txt
+COPY requirements.txt requirements.txt
 
-#RUN [ "pip", "install", "--upgrade", "pip" ]
+RUN [ "pip", "install", "--upgrade", "pip" ]
 
-#RUN [ "pip", "install", "-r", "requirements.txt" ]
+RUN [ "pip", "install" , "--no-cache-dir", "-r", "requirements.txt" ]
+
+USER app_user
 
 COPY . .
 
-#CMD ["python", "src/gossip_server.py"#]
+CMD ["bash"]
+#CMD ["python", "-m","Monitoring_Node","--config ./config/monitor.json"]
