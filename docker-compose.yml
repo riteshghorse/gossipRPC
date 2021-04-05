@@ -1,0 +1,8 @@
+version: "3.8"
+
+services:
+  server:
+      build:
+        context: ./src
+      container_name: gossip
+      command: ["python", "src/gossip_server.py","--config ./config/config1.json"]
