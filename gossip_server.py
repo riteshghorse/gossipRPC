@@ -16,7 +16,7 @@ import Constants
 from random_open_port import random_port
 from RepeatedTimer import RepeatedTimer
 import xmlrpc.client
-
+from utils import *
 
 monitor_client =  xmlrpc.client.ServerProxy('http://' + Constants.MONITOR_ADDRESS + '/RPC2')
 scheduler = sched.scheduler(time.time, time.sleep)
@@ -53,8 +53,22 @@ def stabilize_call(node):
 
 
 def scheduleGossip(node):
+    print('\nscheduling gossip')
     node.startGossip(Constants.RANDOM_GOSSIP)
+    flag_fault = False
+    for k,v in node.endpoint_state_map.items():
+        if k != node.ip:
+            deltatime = getDiffInSeconds(v['last_updated_time'])
+            print('**---++++++ diff:', deltatime)
+            if(deltatime >= Constants.WAIT_SECONDS_FAIL):
+                flag_fault = True
 
+                node.fault_vector[k] = 1
+                print(node.fault_vector)    
+                # monitor_client.
+    
+    if flag_fault:
+        monitor_client.updateSuspectMatrix(node.ip, node.fault_vector)
     # send end point state map to the monitoring node only when
     # it has done handshake with all live  nodes
     if len(node.live_nodes) == len(node.endpoint_state_map):
@@ -94,7 +108,7 @@ if __name__ == "__main__":
     start_gossip_node(node)
     
     # register this node to monitoring node
-    monitor_client.setMapping(str(server_id)+str(server_port))
+    monitor_client.setMapping(str(server_ip)+':'+str(server_port))
 
     flag = 0
     scheduler.enter(1, 1, stabilize_call, (node,))
