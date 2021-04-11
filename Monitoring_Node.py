@@ -55,6 +55,7 @@ class MonitoringNode:
         print('in consensus', ip)
         self.doConsensus()
         print(self.global_fault_vector)
+        print(self.suspect_matrix)
 
 
     def sendEpStateMap(self, ip, epStateMap, msg_count):
@@ -78,7 +79,7 @@ class MonitoringNode:
         for j in range(len(self.suspect_matrix[0])):
             state = 1
             for i in range(len(self.suspect_matrix)):
-                if i != j:
+                if i != j and (self.global_fault_vector[i] & self.global_fault_vector[j] != 1):
                     state &= self.suspect_matrix[i][j]
             if(state == 1):
                 print("Node %s is failed" % (self.Index_to_IP[j]))                
@@ -104,7 +105,8 @@ class MonitoringNode:
         # consensusMap = {k:{'App_version':v[], 'App_status':, 'generation':, 'fault_vector':}   }
         keyList = list(self.consensusMap.keys())
         for i in range(len(keyList)-1):
-            res = res & (self.consensusMap[keyList[i]] == self.consensusMap[keyList[i+1]])
+            if self.global_fault_vector[self.IP_to_Node_Index[keyList[i]]] != 1:
+                res = res & (self.consensusMap[keyList[i]] == self.consensusMap[keyList[i+1]])
         
         # print(res)
         # print(self.global_state_map)
