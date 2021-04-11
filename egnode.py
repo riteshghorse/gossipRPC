@@ -19,13 +19,13 @@ class Node(object):
         self.ip = str(host) + ':' + str(port)
 
         self.heart_beat_state = {"heartBeatValue": Constants.INITIAL_HEARTBEAT, "generation": getCurrentGeneration()} 
-        self.app_state = {"IP_Port": str(host)+':'+str(port) , "App_version": Constants.APP_VERSION_DEFAULT, "App status": Constants.STATUS_NORMAL}
+        self.app_state = {"IP_Port": str(host)+':'+str(port) , "App_version": Constants.APP_VERSION_DEFAULT, "App_status": Constants.STATUS_NORMAL}
         self.endpoint_state_map = {self.app_state["IP_Port"]: {'heartBeat': self.heart_beat_state, 'appState':self.app_state, 'last_updated_time': 0}}
         self.gDigestList = {self.app_state['IP_Port'] : [self.app_state['App_version'], self.heart_beat_state['generation'], self.heart_beat_state['heartBeatValue']]} 
         #{IP_Port:{'heartBeat':[version, generation], 'appState':[], 'last_msg_received': time}}
         # print(self.gDigestList)
         
-        self.fault_vector = list()   
+        self.fault_vector = {self.ip:0}  
         self.live_nodes = list()
         self.dead_nodes = list()
         self.handshake_nodes = list()
@@ -60,9 +60,12 @@ class Node(object):
         print(self.ip)
 
         # print('--------'+sendTo)
-        client =  xmlrpc.client.ServerProxy('http://' + sendTo + '/RPC2')
-        client.acceptSyn(synDigest, self.ip)
-        print("SYN sent")
+        try:
+            client =  xmlrpc.client.ServerProxy('http://' + sendTo + '/RPC2')
+            client.acceptSyn(synDigest, self.ip)
+            print("SYN sent")
+        except Exception as e:
+            pass
         
         # sendAck2()
 
@@ -78,9 +81,12 @@ class Node(object):
         # self.endpoint_state_map[]
         print('\nSyn handler completed')
         # print('DIgest contains: ', (deltaGDigest, self.endpoint_state_map))
-        client =  xmlrpc.client.ServerProxy('http://' + clientIp + '/RPC2')
-        client.acceptAck(deltaGDigest, deltaEpStateMap, self.app_state["IP_Port"])
-        print('\nACK sent')
+        try:
+            client =  xmlrpc.client.ServerProxy('http://' + clientIp + '/RPC2')
+            client.acceptAck(deltaGDigest, deltaEpStateMap, self.app_state["IP_Port"])
+            print('\nACK sent')
+        except Exception as e:
+            pass
         #TODO: timer for ack expiry
 
     def acceptAck(self, deltaGDigest, deltaEpStateMap, clientIp):
@@ -113,17 +119,22 @@ class Node(object):
         # updating timestamp for clientIp
         if clientIp in self.endpoint_state_map:
             self.endpoint_state_map[clientIp]['last_updated_time'] = getTimeStamp()
+            self.fault_vector[clientIp] = 0
 
         print("\nACK handled... sending ack2")
         
         if not self.isInHandshake(clientIp):
             self.handshake_nodes.append(clientIp)
+
         if not self.isInLivenodes(clientIp):
             self.live_nodes.append(self.endpoint_state_map.keys() - self.ip)
         
-        client =  xmlrpc.client.ServerProxy('http://' + clientIp + '/RPC2')
-        client.acceptAck2(epStateMap, self.app_state["IP_Port"])
-        print("\nACK2 sent")
+        try:
+            client =  xmlrpc.client.ServerProxy('http://' + clientIp + '/RPC2')
+            client.acceptAck2(epStateMap, self.app_state["IP_Port"])
+            print("\nACK2 sent")
+        except Exception as e:
+            pass
         # print((self.handshake_nodes, self.live_nodes))
         # print(self.endpoint_state_map)
 
@@ -149,11 +160,13 @@ class Node(object):
         
         if not self.isInHandshake(clientIp):
             self.handshake_nodes.append(clientIp)
+            
         if not self.isInLivenodes(clientIp):
             self.live_nodes.append(self.endpoint_state_map.keys() - self.ip)
 
         # updating timestamp of clientIp
         self.endpoint_state_map[clientIp]['last_updated_time'] = getTimeStamp()
+        self.fault_vector[clientIp] = 0
         print('\n ACK2 processed... complete handshake')
         print(self.handshake_nodes, self.live_nodes)
         # print((self.handshake_nodes, self.live_nodes))
@@ -191,8 +204,11 @@ class Node(object):
                         continue
                     
                     if self.isInHandshake(ip):
-                        client =  xmlrpc.client.ServerProxy('http://' + ip + '/RPC2')
-                        client.receiveGossip(self.gDigestList, self.ip)
+                        try:
+                            client =  xmlrpc.client.ServerProxy('http://' + ip + '/RPC2')
+                            client.receiveGossip(self.gDigestList, self.ip)
+                        except Exception as e:
+                            pass
                     else:
                         print('--------------------> sending syn'+ip)
                         # client =  xmlrpc.client.ServerProxy('http://' + ip + '/RPC2')
@@ -208,8 +224,11 @@ class Node(object):
                 for i in random_numbers:
                     ip = keyList[i]
                     if self.isInHandshake(ip):
-                        client =  xmlrpc.client.ServerProxy('http://' + ip + '/RPC2')
-                        client.receiveGossip(self.gDigestList, self.ip)
+                        try:
+                            client =  xmlrpc.client.ServerProxy('http://' + ip + '/RPC2')
+                            client.receiveGossip(self.gDigestList, self.ip)
+                        except Exception as e:
+                            pass
                     else:
                         print('--------------------> sending syn'+ip)
                         # client =  xmlrpc.client.ServerProxy('http://' + ip + '/RPC2')
@@ -254,14 +273,8 @@ class Node(object):
                 # argdict = {ip:digest}
                 # self.gDigestList = {**self.gDigestList}
         self.gDigestList = currenttList
+        # updating timestamp for clientIp
+        if clientIp in self.endpoint_state_map:
+            self.endpoint_state_map[clientIp]['last_updated_time'] = getTimeStamp()
+            self.fault_vector[clientIp] = 0
         # print('reassigned************************')
-
-    def get_id_of_node(self, calling_id):
-        print("Calling {} from {}.".format(self.id, calling_id))
-        return self.id
-
-
-    def contact_node(self, host, port):
-        client =  xmlrpc.client.ServerProxy('http://' + host + ":" + str(port) + '/RPC2')
-        contact_node_id = client.get_id_of_node(self.id)
-        print("Contact node with id: {}".format(contact_node_id))
