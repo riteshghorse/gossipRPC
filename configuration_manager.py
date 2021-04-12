@@ -3,6 +3,7 @@
 
 import json
 import os
+import socket
 
 
 # __all__ = ["ConfigurationManager"]
@@ -20,10 +21,10 @@ class Configuration(object):
         return self._config_file
 
     def get_gossip_port(self):
-        return self._config["port"]
+        return 5000
 
     def get_gossip_host(self):
-        return self._config["host"]
+        return socket.gethostbyname(socket.gethostname())
 
     def get_seed_port(self):
         return self._config["seed_port"]

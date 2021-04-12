@@ -12,6 +12,7 @@ RUN [ "pip", "install" , "--no-cache-dir", "-r", "requirements.txt" ]
 
 USER app_user
 
+EXPOSE 5000
 COPY . .
 
 CMD ["bash"]

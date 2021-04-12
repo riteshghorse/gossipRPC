@@ -1,6 +1,4 @@
 {
-    "host": "localhost",
-    "port": 5002,
-    "seed_host": "localhost",
-    "seed_port": 5001
+    "seed_host": "172.17.0.6",
+    "seed_port": 5000
 }

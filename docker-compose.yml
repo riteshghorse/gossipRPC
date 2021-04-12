@@ -1,8 +1,25 @@
-version: "3.8"
+version: "3"
 
 services:
-  server:
-      build:
-        context: ./src
-      container_name: gossip
-      command: ["python", "src/gossip_server.py","--config ./config/config1.json"]
+  node1:
+    container_name: node1
+    build:
+      context: .
+    ports:
+      - 5001:5000
+    networks: 
+      - gossipNetwork
+
+  node2:
+    build:
+      context: .
+    container_name: node2
+    ports:
+      - 5002:5000
+    networks: 
+      - gossipNetwork
+
+networks: 
+  gossipNetwork:
+    name: gossip-network
+    driver: bridge

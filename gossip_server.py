@@ -18,12 +18,12 @@ from RepeatedTimer import RepeatedTimer
 import xmlrpc.client
 
 
-monitor_client =  xmlrpc.client.ServerProxy('http://' + Constants.MONITOR_ADDRESS + '/RPC2')
+#monitor_client =  xmlrpc.client.ServerProxy('http://' + Constants.MONITOR_ADDRESS + '/RPC2')
 scheduler = sched.scheduler(time.time, time.sleep)
 # proxy = xmlrpc.client.ServerProxy("http://localhost:8000/") 
 
 def start_gossip_node(gossip_node):
-    XMLRPCGossipManager.start_server(gossip_node)
+    XMLRPCGossipManager.start_server(gossip_node,server_ip)
 
 
 def stop_gossip_node():
@@ -74,9 +74,13 @@ if __name__ == "__main__":
     # configuration_file, bootstrap_server, server_id, no_hash = get_arguments()
     configuration_file = get_arguments()
     from egnode import Node
+    import socket
+
+    server_ip = socket.gethostbyname(socket.gethostname())
+    print(server_ip + " -> Server IP")
+    server_port = 5000
     if configuration_file == None:
-        server_ip = "localhost"
-        server_port = random_port()
+        server_port = 5000
         data = {"host": server_ip, "port": server_port, "seed_host": 'localhost', "seed_port": 5001}
         with open('config_'+str(server_port), 'w') as outfile:
             json.dump(data, outfile)
@@ -85,8 +89,8 @@ if __name__ == "__main__":
         os.environ["GOSSIP_CONFIG"] = configuration_file
         ConfigurationManager.reset_configuration()
 
-        server_ip = ConfigurationManager.get_configuration().get_gossip_host()
-        server_port = ConfigurationManager.get_configuration().get_gossip_port()
+        # server_ip = ConfigurationManager.get_configuration().get_gossip_host()
+        # server_port = ConfigurationManager.get_configuration().get_gossip_port()
     
     server_id = random.randint(1, 1000)
     node = Node(server_ip, server_port, server_id)
@@ -94,7 +98,7 @@ if __name__ == "__main__":
     start_gossip_node(node)
     
     # register this node to monitoring node
-    monitor_client.setMapping(str(server_id)+str(server_port))
+    #monitor_client.setMapping(str(server_id)+str(server_port))
 
     flag = 0
     scheduler.enter(1, 1, stabilize_call, (node,))
@@ -113,7 +117,7 @@ if __name__ == "__main__":
 
         # t = threading.Timer(Constants.WAIT_SECONDS_HEARTBEAT, node.updateHearbeat()).start()
 
-        console_input = input("\n1.connect\n2.consensus")
+        console_input = input("\n1.connect\n2.consensus\n")
         
         if console_input.strip() == "stop":
         
@@ -123,13 +127,14 @@ if __name__ == "__main__":
         if console_input.strip() == "connect":
             flag = 1
             # pass
-            #contact_ip = input("Enter ip/host of node to contact")
-            #contact_port = input("Enter port of node to contact")
-
+            contact_ip = input("Enter ip/host of node to contact")
+            contact_port = input("Enter port of node to contact")
+            print(" Connecting to " + contact_ip.strip() + ":" + contact_port)
             #node.contact_node(contact_ip, contact_port)
-            inp = str(ConfigurationManager.get_configuration().get_seed_host())+':'+str(ConfigurationManager.get_configuration().get_seed_port())
+            inp = str(contact_ip.strip()+':'+ contact_port)
             node.sendSYN(inp)
             scheduler.enter(5, 2, scheduleGossip, (node,))
+            print(" Connecting to " + contact_ip.strip() + ":" + contact_port)
             # node.sendACK2()
 
         if console_input.strip() == "consensus":

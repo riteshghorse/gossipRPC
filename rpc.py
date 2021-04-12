@@ -20,12 +20,11 @@ class XMLRPCGossipManager(object):
     server_thread = None
 
     @staticmethod
-    def start_server(gossip_node):
+    def start_server(gossip_node,host_ip):
 
-        ip = ConfigurationManager.get_configuration().get_gossip_host()
-        port = ConfigurationManager.get_configuration().get_gossip_port()
+        ip = host_ip #ConfigurationManager.get_configuration().get_gossip_host()
+        port = 5000 # ConfigurationManager.get_configuration().get_gossip_port()
 
-        print(ip, port)
 
         if not XMLRPCGossipManager.server and not XMLRPCGossipManager.server_thread:
             XMLRPCGossipManager.server = AsyncXMLRPCServer((ip, port), GossipRPCRequestHandler, allow_none=True,
