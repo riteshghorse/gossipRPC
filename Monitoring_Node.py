@@ -4,6 +4,7 @@ from gossip_server import get_arguments, start_gossip_node, stop_gossip_node
 from configuration_manager import ConfigurationManager
 import os
 import time
+import copy
 
 class MonitoringNode:
     def __init__(self):
@@ -16,6 +17,7 @@ class MonitoringNode:
         self.start_time = None
         self.node_msg_count = defaultdict()
         self.total_msg_count = 0
+        self.consensusMap = defaultdict(defaultdict)
 
     def setMapping(self,ip):
         
@@ -46,8 +48,11 @@ class MonitoringNode:
 
     def updateSuspectMatrix(self, ip, fault_vector):
         
-        index = getMapping()[ip]
-        self.suspect_matrix[index] = fault_vector
+        index = self.getMapping()[ip]
+        for k,v in fault_vector.items():
+            self.suspect_matrix[self.IP_to_Node_Index[ip]][self.IP_to_Node_Index[k]] = v 
+        
+        print('in consensus', ip)
         self.doConsensus()
         print(self.global_fault_vector)
 
@@ -69,6 +74,7 @@ class MonitoringNode:
         return self.suspect_matrix
 
     def doConsensus(self):
+        
         for j in range(len(self.suspect_matrix[0])):
             state = 1
             for i in range(len(self.suspect_matrix)):
@@ -79,8 +85,30 @@ class MonitoringNode:
             else:
                 print("Node %s is alive" % (self.Index_to_IP[j]))                
             self.global_fault_vector[j] = state
+        print('end consensus')
 
-    
+    def doConsensusCheck(self):
+        res = True
+        # keyList = self.global_state_map.keys()
+        currentEpStateMap =  copy.deepcopy(self.global_state_map)
+        for k,v in currentEpStateMap.items() :
+            for k1, v1 in v.items():
+                temp = {}
+                temp['generation'] = v1['heartBeat']['generation']
+                temp['App_status'] = v1['appState']['App_status']
+                temp['App_version'] = v1['appState']['App_version']
+                # print(self.IP_to_Node_Index)
+                temp['fault_vector'] = self.suspect_matrix[self.IP_to_Node_Index[k]]
+                self.consensusMap[k][k1] = temp
+
+        # consensusMap = {k:{'App_version':v[], 'App_status':, 'generation':, 'fault_vector':}   }
+        keyList = list(self.consensusMap.keys())
+        for i in range(len(keyList)-1):
+            res = res & (self.consensusMap[keyList[i]] == self.consensusMap[keyList[i+1]])
+        
+        # print(res)
+        # print(self.global_state_map)
+        return res
     # server = SimpleXMLRPCServer(("localhost", 8000), allow_none = True)
     # print("Listening on port 8000...")
     # server.register_function(setMapping, "setMapping")
@@ -124,19 +152,11 @@ if __name__ == "__main__":
             break
 
         if console_input.strip() == "check":
-            print('Node Address \t\t\t\t  State Map')
-            print(node.global_state_map)
-            result_dict = {}
-            for k,v in node.global_state_map.items():
-                result_dict[k] = len(v)
-                
-            print(result_dict)
-            if(len(list(set(list(result_dict.values())))) == 1):
-                print('------------- Consensus Achieved --------------')
-                run_time = time.perf_counter() - node.start_time 
-                print(run_time)
-                print(node.total_msg_count)
-                # print(sum(list(node.node_msg_count.values())))
+            while(node.doConsensusCheck()):
+                time.sleep(2)
+            # break
+            # print(node.doConsensusCheck())
+            print('\n--------- check complete ------------')
             
             
         if console_input.strip() == "start":
@@ -148,8 +168,9 @@ if __name__ == "__main__":
                 for k,v in node.global_state_map.items():
                     result_dict[k] = len(v)
                     
-                print(result_dict)
-                if(len(list(set(list(result_dict.values())))) == 1):
+                # print(result_dict)
+                # if(len(list(set(list(result_dict.values())))) == 1):
+                if(node.doConsensusCheck()):
                     print('------------- Consensus Achieved --------------')
                     run_time = time.perf_counter() - node.start_time 
                     print(run_time)
