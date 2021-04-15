@@ -53,18 +53,19 @@ def stabilize_call(node):
 
 
 def scheduleGossip(node):
-    print('\nscheduling gossip')
-    node.startGossip(Constants.RANDOM_GOSSIP)
+    # print('\nscheduling gossip')
+    # node.startGossip(Constants.RANDOM_GOSSIP)
+    node.startGossip(Constants.RR_GOSSIP)
     flag_fault = False
     for k,v in node.endpoint_state_map.items():
         if k != node.ip:
             deltatime = getDiffInSeconds(v['last_updated_time'])
-            print('**---++++++ diff:', deltatime)
+            # print('**---++++++ diff:', deltatime)
             if(deltatime >= Constants.WAIT_SECONDS_FAIL):
                 flag_fault = True
 
                 node.fault_vector[k] = 1
-                print(node.fault_vector)    
+                # print(node.fault_vector)    
                 # monitor_client.
     
     if flag_fault:
@@ -72,8 +73,8 @@ def scheduleGossip(node):
     # send end point state map to the monitoring node only when
     # it has done handshake with all live  nodes
     if len(node.live_nodes) == len(node.endpoint_state_map):
-        print('*******************************************')
-        print(node.message_count)
+        # print('*******************************************')
+        # print(node.message_count)
         monitor_client.sendEpStateMap(node.ip, node.endpoint_state_map, node.message_count)
     
     scheduler.enter(5, 2, scheduleGossip, (node,))
