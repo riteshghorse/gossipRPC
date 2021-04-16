@@ -33,8 +33,9 @@ class Node(object):
         self.handshake_nodes = list()
         self.message_count = 0
         self.rr_index = 0
-        self.rr_list = None
-        
+        self.rr_list = []
+        self.rr_round = 0
+
     def updateHearbeat(self):
         self.heart_beat_state["heartBeatValue"] += 1
         
@@ -236,9 +237,7 @@ class Node(object):
     # def createRRList(self, digestList):
         
 
-    def initiateRRGossip(self):
-
-        
+    def initiateRRGossip(self):     
         
         if self.rr_index == 0:
             self.rr_list = copy.deepcopy(self.gDigestList)
@@ -267,6 +266,36 @@ class Node(object):
         self.rr_index =  (self.rr_index + 1) % len(self.rr_list)
         print('round robin ' + str(self.rr_index) + 'done')
 
+    def initiateBinaryRRGossip(self):     
+        
+        if len(self.rr_list)==0 or self.rr_index % len(self.rr_list) == 0:
+            self.rr_list = copy.deepcopy(self.gDigestList)
+            self.rr_list.pop(self.ip, None)
+
+
+        from gossip_server import scheduler, scheduleGossip
+
+        print('In round: '+str(self.rr_round))
+        keyList = list(self.rr_list.keys() - self.ip)
+        # random_numbers = sample(range(0, len(keyList)), 3)
+        # print('-------------------------------------------------')
+        self.message_count += 1
+        # print(keyList, random_numbers)
+        # for i in random_numbers:
+        ip = keyList[self.rr_index]
+        if self.isInHandshake(ip):
+            try:
+                client =  xmlrpc.client.ServerProxy('http://' + ip + '/RPC2')
+                client.receiveGossip(self.gDigestList, self.ip)
+            except Exception as e:
+                pass
+        else:
+            print('--------------------> sending syn'+ip)
+            self.sendSYN(ip)
+        self.rr_index =  (self.rr_index + 2**(self.rr_round)) % len(self.rr_list)
+        self.rr_round += 1
+        print('round robin ' + str(self.rr_round) + 'done')
+
     def startGossip(self, gossip_protocol):
         if gossip_protocol == Constants.RANDOM_GOSSIP:
             self.initiateRandomGossip()
@@ -274,6 +303,8 @@ class Node(object):
         elif gossip_protocol == Constants.RR_GOSSIP:
             self.initiateRRGossip()
 
+        elif gossip_protocol == Constants.BRR_GOSSIP:
+            self.initiateBinaryRRGossip()
     def receiveGossip(self, digestList, clientIp):
         
         #TODO: add application version in later stage as well for comparison

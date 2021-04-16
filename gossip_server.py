@@ -55,7 +55,8 @@ def stabilize_call(node):
 def scheduleGossip(node):
     # print('\nscheduling gossip')
     # node.startGossip(Constants.RANDOM_GOSSIP)
-    node.startGossip(Constants.RR_GOSSIP)
+    # node.startGossip(Constants.RR_GOSSIP)
+    node.startGossip(Constants.BRR_GOSSIP)
     flag_fault = False
     for k,v in node.endpoint_state_map.items():
         if k != node.ip:
