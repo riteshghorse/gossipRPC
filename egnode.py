@@ -28,7 +28,7 @@ class Node(object):
         # print(self.gDigestList)
         
         self.fault_vector = {self.ip:0}  
-        self.live_nodes = list()
+        self.live_nodes = list(self.ip)
         self.dead_nodes = list()
         self.handshake_nodes = list()
         self.message_count = 0
@@ -93,6 +93,8 @@ class Node(object):
             pass
         #TODO: timer for ack expiry
 
+    
+
     def acceptAck(self, deltaGDigest, deltaEpStateMap, clientIp):
         print('\nin accept ack')
         self.message_count += 1
@@ -126,7 +128,7 @@ class Node(object):
             self.endpoint_state_map[clientIp]['last_updated_time'] = getTimeStamp()
             if clientIp in self.fault_vector:
                 self.fault_vector[clientIp] = 0
-                monitor_client.updateSuspectMatrix(self.ip, self.fault_vector)
+                monitor_client.updateSuspectMatrix(self.ip, self.fault_vector, self.getGeneration())
 
         print("\nACK handled... sending ack2")
         
@@ -134,7 +136,8 @@ class Node(object):
             self.handshake_nodes.append(clientIp)
 
         if not self.isInLivenodes(clientIp):
-            self.live_nodes.append(self.endpoint_state_map.keys() - self.ip)
+            self.live_nodes = list(self.endpoint_state_map.keys())
+            
         
         try:
             client =  xmlrpc.client.ServerProxy('http://' + clientIp + '/RPC2')
@@ -169,19 +172,24 @@ class Node(object):
             self.handshake_nodes.append(clientIp)
             
         if not self.isInLivenodes(clientIp):
-            self.live_nodes.append(self.endpoint_state_map.keys() - self.ip)
+            self.live_nodes = list(self.endpoint_state_map.keys())
 
         # updating timestamp of clientIp
         self.endpoint_state_map[clientIp]['last_updated_time'] = getTimeStamp()
         
         if clientIp in self.fault_vector:
             self.fault_vector[clientIp] = 0
-            monitor_client.updateSuspectMatrix(self.ip, self.fault_vector)
+            monitor_client.updateSuspectMatrix(self.ip, self.fault_vector, self.getGeneration())
         print('\n ACK2 processed... complete handshake')
         # print(self.handshake_nodes, self.live_nodes)
         # print((self.handshake_nodes, self.live_nodes))
         # print(self.endpoint_state_map)
 
+    def getGeneration(self, clientIp):
+        if clientIp in self.endpoint_state_map:
+            self.endpoint_state_map[clientIp]["heartBeat"]["generation"]
+        else:
+            return getCurrentGeneration()
 
     def isInHandshake(self, ip):
         if ip in self.handshake_nodes:
@@ -311,5 +319,5 @@ class Node(object):
             self.endpoint_state_map[clientIp]['last_updated_time'] = getTimeStamp()
             if clientIp in self.fault_vector:
                 self.fault_vector[clientIp] = 0
-                monitor_client.updateSuspectMatrix(self.ip, self.fault_vector)
+                monitor_client.updateSuspectMatrix(self.ip, self.fault_vector, self.getGeneration())
         # print('reassigned************************')

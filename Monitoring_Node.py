@@ -47,16 +47,19 @@ class MonitoringNode:
         return self.IP_to_Node_Index
 
 
-    def updateSuspectMatrix(self, ip, fault_vector):
+    def updateSuspectMatrix(self, ip, fault_vector, generation):
         
         index = self.getMapping()[ip]
         for k,v in fault_vector.items():
-            print(self.IP_to_Node_Index, k)
-            if v==0 and (self.IP_to_Node_Index[k] in self.global_fault_vector) and self.global_fault_vector[self.IP_to_Node_Index[k]] == 1:
-                print(self.IP_to_Node_Index, k)
-                if (self.IP_to_Node_Index[k] in self.ip_generation and k in self.global_state_map and k in self.global_state_map[k]):
-                    if self.global_state_map[k][k]['heartBeat']['generation'] == self.ip_generation[self.IP_to_Node_Index[k]]:
-                        print('False failure detection happened for ', k)
+            if v==0:
+                if(self.IP_to_Node_Index[k] in self.ip_generation and generation == self.ip_generation[self.IP_to_Node_Index[k]]):
+                    print('False failure detection happened for ', k)        
+            # print(self.IP_to_Node_Index, k)
+            # if v==0 and (self.IP_to_Node_Index[k] in self.global_fault_vector) and self.global_fault_vector[self.IP_to_Node_Index[k]] == 1:
+            #     print(self.IP_to_Node_Index, k)
+            #     if (self.IP_to_Node_Index[k] in self.ip_generation and k in self.global_state_map and k in self.global_state_map[k]):
+            #         if self.global_state_map[k][k]['heartBeat']['generation'] == self.ip_generation[self.IP_to_Node_Index[k]]:
+            #             print('False failure detection happened for ', k)
             self.suspect_matrix[self.IP_to_Node_Index[ip]][self.IP_to_Node_Index[k]] = v 
             
         print('in consensus', ip)
@@ -94,7 +97,12 @@ class MonitoringNode:
                 print("Node %s is alive" % (self.Index_to_IP[j]))                
             self.global_fault_vector[j] = state
             if(state == 1):
+                # print("global state map----------------//////////\n", len(self.global_state_map))
+                # try:
                 self.ip_generation[j] = self.global_state_map[self.Index_to_IP[j]][self.Index_to_IP[j]]['heartBeat']['generation']
+                # except Exception as e:
+                #     pass
+
                 print('in do consensus generation', self.ip_generation)
         print('end consensus')
 

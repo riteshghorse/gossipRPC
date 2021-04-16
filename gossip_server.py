@@ -69,11 +69,13 @@ def scheduleGossip(node):
                 # monitor_client.
     
     if flag_fault:
-        monitor_client.updateSuspectMatrix(node.ip, node.fault_vector)
+        monitor_client.updateSuspectMatrix(node.ip, node.fault_vector, node.heart_beat_state["generation"])
     # send end point state map to the monitoring node only when
     # it has done handshake with all live  nodes
+    # print('***************** before sending epstate map ******************')
+    # print(node.live_nodes, len(node.endpoint_state_map))
     if len(node.live_nodes) == len(node.endpoint_state_map):
-        # print('*******************************************')
+        # print('***************** sent epstate map ******************')
         # print(node.message_count)
         monitor_client.sendEpStateMap(node.ip, node.endpoint_state_map, node.message_count)
     
