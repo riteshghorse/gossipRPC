@@ -4,7 +4,7 @@ from xmlrpc import server
 import threading
 import socketserver
 from configuration_manager import ConfigurationManager
-
+import socket
 
 class GossipRPCRequestHandler(server.SimpleXMLRPCRequestHandler):
     rpc_paths = ('/', '/RPC2',)
@@ -15,17 +15,17 @@ class AsyncXMLRPCServer(socketserver.ThreadingMixIn, server.SimpleXMLRPCServer):
 
 
 class XMLRPCGossipManager(object):
-
+    import socket
     server = None
     server_thread = None
 
     @staticmethod
     def start_server(gossip_node):
 
-        ip = ConfigurationManager.get_configuration().get_gossip_host()
+        ip = socket.gethostbyname(socket.gethostname()) #ConfigurationManager.get_configuration().get_gossip_host()
         port = ConfigurationManager.get_configuration().get_gossip_port()
 
-        print(ip, port)
+        print("Host IP + port is " + str(ip) + ":"+ str(port))
 
         if not XMLRPCGossipManager.server and not XMLRPCGossipManager.server_thread:
             XMLRPCGossipManager.server = AsyncXMLRPCServer((ip, port), GossipRPCRequestHandler, allow_none=True,

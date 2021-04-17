@@ -5,6 +5,7 @@ from configuration_manager import ConfigurationManager
 import os
 import time
 import copy
+import socket
 
 class MonitoringNode:
     def __init__(self):
@@ -118,7 +119,7 @@ class MonitoringNode:
 
 
 if __name__ == "__main__":
-
+    import socket
 
     configuration_file = get_arguments()
    
@@ -126,7 +127,7 @@ if __name__ == "__main__":
     os.environ["GOSSIP_CONFIG"] = configuration_file
     ConfigurationManager.reset_configuration()
 
-    server_ip = ConfigurationManager.get_configuration().get_gossip_host()
+    server_ip =   socket.gethostbyname(socket.gethostname()) #ConfigurationManager.get_configuration().get_gossip_host()
     server_port = ConfigurationManager.get_configuration().get_gossip_port()
     
     
