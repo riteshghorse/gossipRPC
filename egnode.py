@@ -13,6 +13,8 @@ from random import sample
 
 
 
+monitor_client =  xmlrpc.client.ServerProxy('http://' + Constants.MONITOR_ADDRESS + '/RPC2')
+
 class Node(object):
 
     def __init__(self, host, port, id):
@@ -26,11 +28,13 @@ class Node(object):
         # print(self.gDigestList)
         
         self.fault_vector = {self.ip:0}  
-        self.live_nodes = list()
+        self.live_nodes = list(self.ip)
         self.dead_nodes = list()
         self.handshake_nodes = list()
         self.message_count = 0
-
+        self.rr_index = 0
+        self.rr_list = None
+        
     def updateHearbeat(self):
         self.heart_beat_state["heartBeatValue"] += 1
         
@@ -57,7 +61,7 @@ class Node(object):
         # else:
         #     sendTo = 'localhost:5001'   #TODO: change it to random
 
-        print(self.ip)
+        # print(self.ip)
 
         # print('--------'+sendTo)
         try:
@@ -76,7 +80,7 @@ class Node(object):
         deltaGDigest, deltaEpStateMap = variable.handleSync(synDigest)
         
         # self.endpoint_state_map[clientIp]['last_updated_time'] = getTimeStamp()
-        print(clientIp)
+        # print(clientIp)
         # print()
         # self.endpoint_state_map[]
         print('\nSyn handler completed')
@@ -88,6 +92,8 @@ class Node(object):
         except Exception as e:
             pass
         #TODO: timer for ack expiry
+
+    
 
     def acceptAck(self, deltaGDigest, deltaEpStateMap, clientIp):
         print('\nin accept ack')
@@ -116,10 +122,13 @@ class Node(object):
                 self.endpoint_state_map[ip] = deltaEpStateMap[ip]
                 #gDIgest list will be forwarded in next rounds of gossip hence it has to be updated
                 self.gDigestList[ip] = [self.endpoint_state_map[ip]['appState']['App_version'], self.endpoint_state_map[ip]['heartBeat']['generation'], self.endpoint_state_map[ip]['heartBeat']['heartBeatValue']]
+        # print('updated epstate')
         # updating timestamp for clientIp
         if clientIp in self.endpoint_state_map:
             self.endpoint_state_map[clientIp]['last_updated_time'] = getTimeStamp()
-            self.fault_vector[clientIp] = 0
+            if clientIp in self.fault_vector:
+                self.fault_vector[clientIp] = 0
+                monitor_client.updateSuspectMatrix(self.ip, self.fault_vector, self.getGeneration())
 
         print("\nACK handled... sending ack2")
         
@@ -127,7 +136,8 @@ class Node(object):
             self.handshake_nodes.append(clientIp)
 
         if not self.isInLivenodes(clientIp):
-            self.live_nodes.append(self.endpoint_state_map.keys() - self.ip)
+            self.live_nodes = list(self.endpoint_state_map.keys())
+            
         
         try:
             client =  xmlrpc.client.ServerProxy('http://' + clientIp + '/RPC2')
@@ -162,16 +172,24 @@ class Node(object):
             self.handshake_nodes.append(clientIp)
             
         if not self.isInLivenodes(clientIp):
-            self.live_nodes.append(self.endpoint_state_map.keys() - self.ip)
+            self.live_nodes = list(self.endpoint_state_map.keys())
 
         # updating timestamp of clientIp
         self.endpoint_state_map[clientIp]['last_updated_time'] = getTimeStamp()
-        self.fault_vector[clientIp] = 0
+        
+        if clientIp in self.fault_vector:
+            self.fault_vector[clientIp] = 0
+            monitor_client.updateSuspectMatrix(self.ip, self.fault_vector, self.getGeneration())
         print('\n ACK2 processed... complete handshake')
-        print(self.handshake_nodes, self.live_nodes)
+        # print(self.handshake_nodes, self.live_nodes)
         # print((self.handshake_nodes, self.live_nodes))
         # print(self.endpoint_state_map)
 
+    def getGeneration(self, clientIp):
+        if clientIp in self.endpoint_state_map:
+            self.endpoint_state_map[clientIp]["heartBeat"]["generation"]
+        else:
+            return getCurrentGeneration()
 
     def isInHandshake(self, ip):
         if ip in self.handshake_nodes:
@@ -185,62 +203,82 @@ class Node(object):
         else:
             return False
 
+    def initiateRandomGossip(self):
+    
+        # print(self.gDigestList)
+        digestList = copy.deepcopy(self.gDigestList)
+
+        digestList.pop(self.ip, None)
+        # self.gDigestList['localhost:5003'] = [1,2,3]
+        # print(self.gDigestList)
+        # print(digestList, self.gDigestList)
+        from gossip_server import scheduler, scheduleGossip
+
+        keyList = list(digestList.keys() - self.ip)
+        random_numbers = sample(range(0, len(keyList)), 1)
+        # print('-------------------------------------------------')
+        self.message_count += 1
+        print(keyList, random_numbers)
+        for i in random_numbers:
+        
+            ip = keyList[i]
+            if self.isInHandshake(ip):
+                try:
+                    client =  xmlrpc.client.ServerProxy('http://' + ip + '/RPC2')
+                    client.receiveGossip(self.gDigestList, self.ip)
+                except Exception as e:
+                    pass
+            else:
+                print('--------------------> sending syn'+ip)
+                self.sendSYN(ip)
+
+
+    # def createRRList(self, digestList):
+        
+
+    def initiateRRGossip(self):
+
+        
+        
+        if self.rr_index == 0:
+            self.rr_list = copy.deepcopy(self.gDigestList)
+            self.rr_list.pop(self.ip, None)
+
+
+        from gossip_server import scheduler, scheduleGossip
+
+        print('In round: '+str(self.rr_index))
+        keyList = list(self.rr_list.keys() - self.ip)
+        # random_numbers = sample(range(0, len(keyList)), 3)
+        # print('-------------------------------------------------')
+        self.message_count += 1
+        # print(keyList, random_numbers)
+        # for i in random_numbers:
+        ip = keyList[self.rr_index]
+        if self.isInHandshake(ip):
+            try:
+                client =  xmlrpc.client.ServerProxy('http://' + ip + '/RPC2')
+                client.receiveGossip(self.gDigestList, self.ip)
+            except Exception as e:
+                pass
+        else:
+            print('--------------------> sending syn'+ip)
+            self.sendSYN(ip)
+        self.rr_index =  (self.rr_index + 1) % len(self.rr_list)
+        print('round robin ' + str(self.rr_index) + 'done')
+
     def startGossip(self, gossip_protocol):
         if gossip_protocol == Constants.RANDOM_GOSSIP:
-            # print(self.gDigestList)
-            digestList = copy.deepcopy(self.gDigestList)
+            self.initiateRandomGossip()
 
-            digestList.pop(self.ip, None)
-            # self.gDigestList['localhost:5003'] = [1,2,3]
-            # print(self.gDigestList)
-            # print(digestList, self.gDigestList)
-            from gossip_server import scheduler, scheduleGossip
-
-            if(len(digestList) <= 3):
-                for ip, digest in digestList.items():
-                    self.message_count += 1
-                    # print('in start+-+-+-+-+-+-+-+-+-+-+++-+--++-',self.handshake_nodes)
-                    if ip == self.ip:
-                        continue
-                    
-                    if self.isInHandshake(ip):
-                        try:
-                            client =  xmlrpc.client.ServerProxy('http://' + ip + '/RPC2')
-                            client.receiveGossip(self.gDigestList, self.ip)
-                        except Exception as e:
-                            pass
-                    else:
-                        print('--------------------> sending syn'+ip)
-                        # client =  xmlrpc.client.ServerProxy('http://' + ip + '/RPC2')
-                        # client.sendSYN(ip)
-                        self.sendSYN(ip)
-                        # print('doing it')
-            else:
-                keyList = list(digestList.keys() - self.ip)
-                random_numbers = sample(range(0, len(keyList)), 3)
-                # print('-------------------------------------------------')
-                self.message_count += 3
-                print(keyList, random_numbers)
-                for i in random_numbers:
-                    ip = keyList[i]
-                    if self.isInHandshake(ip):
-                        try:
-                            client =  xmlrpc.client.ServerProxy('http://' + ip + '/RPC2')
-                            client.receiveGossip(self.gDigestList, self.ip)
-                        except Exception as e:
-                            pass
-                    else:
-                        print('--------------------> sending syn'+ip)
-                        # client =  xmlrpc.client.ServerProxy('http://' + ip + '/RPC2')
-                        # client.sendSYN(ip)
-                        self.sendSYN(ip)
-                        # print('doing it')
+        elif gossip_protocol == Constants.RR_GOSSIP:
+            self.initiateRRGossip()
 
     def receiveGossip(self, digestList, clientIp):
         
         #TODO: add application version in later stage as well for comparison
         print('gossip received from--\n' + clientIp, digestList)
-        print('my digest', self.gDigestList)
+        # print('my digest', self.gDigestList)
         currenttList = copy.deepcopy(self.gDigestList)
         for ip, digest in digestList.items():
             if ip == self.ip:
@@ -273,8 +311,13 @@ class Node(object):
                 # argdict = {ip:digest}
                 # self.gDigestList = {**self.gDigestList}
         self.gDigestList = currenttList
+        # print('------------------------------')
+        # print(self.ip, self.gDigestList)
+        # print('------------------------------')
         # updating timestamp for clientIp
         if clientIp in self.endpoint_state_map:
             self.endpoint_state_map[clientIp]['last_updated_time'] = getTimeStamp()
-            self.fault_vector[clientIp] = 0
+            if clientIp in self.fault_vector:
+                self.fault_vector[clientIp] = 0
+                monitor_client.updateSuspectMatrix(self.ip, self.fault_vector, self.getGeneration())
         # print('reassigned************************')
