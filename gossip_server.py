@@ -49,14 +49,23 @@ def get_arguments():
 
 def stabilize_call(node):
     node.updateHearbeat()
+    # send heartbeat to monitor
+    monitor_client.setheartbeatTime(node.ip)
     scheduler.enter(1, 1, stabilize_call, (node,))
 
 
 def scheduleGossip(node):
     # print('\nscheduling gossip')
     # node.startGossip(Constants.RANDOM_GOSSIP)
-    # node.startGossip(Constants.RR_GOSSIP)
-    node.startGossip(Constants.BRR_GOSSIP)
+    node.startGossip(Constants.RR_GOSSIP)
+    node.gossip_version = Constants.ROUND_ROBIN
+
+    
+    
+    if len(node.live_nodes) == len(node.endpoint_state_map):
+        # print('***************** sent epstate map ******************')
+        # print(node.message_count)
+        monitor_client.sendEpStateMap(node.ip, node.endpoint_state_map, node.message_count)
     flag_fault = False
     for k,v in node.endpoint_state_map.items():
         if k != node.ip:
@@ -75,10 +84,7 @@ def scheduleGossip(node):
     # it has done handshake with all live  nodes
     # print('***************** before sending epstate map ******************')
     # print(node.live_nodes, len(node.endpoint_state_map))
-    if len(node.live_nodes) == len(node.endpoint_state_map):
-        # print('***************** sent epstate map ******************')
-        # print(node.message_count)
-        monitor_client.sendEpStateMap(node.ip, node.endpoint_state_map, node.message_count)
+    
     
     scheduler.enter(5, 2, scheduleGossip, (node,))
 
@@ -113,7 +119,7 @@ if __name__ == "__main__":
     
     # register this node to monitoring node
     monitor_client.setMapping(str(server_ip)+':'+str(server_port))
-
+    monitor_client.sendEpStateMap(node.ip, node.endpoint_state_map, node.message_count)
     flag = 0
     scheduler.enter(1, 1, stabilize_call, (node,))
     stabilization_thread = threading.Thread(target=scheduler.run, args=(True,))
