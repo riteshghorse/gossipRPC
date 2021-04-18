@@ -5,6 +5,8 @@ from configuration_manager import ConfigurationManager
 import os
 import time
 import copy
+from utils import *
+import Constants
 
 class MonitoringNode:
     def __init__(self):
@@ -19,6 +21,11 @@ class MonitoringNode:
         self.total_msg_count = 0
         self.consensusMap = defaultdict(defaultdict)
         self.ip_generation = defaultdict()
+        self.heartbeatTime = {}
+
+    def setheartbeatTime(self, ip):
+        # print(ip, 'updating hb\n')
+        self.heartbeatTime[ip] = getTimeStamp()
 
     def setMapping(self,ip):
         
@@ -27,18 +34,21 @@ class MonitoringNode:
         # global Index_to_IP
         # global IP_to_Node_Index
         # global suspect_matrix
-
+        # print(self.suspect_matrix)
         if ip in self.IP_to_Node_Index:
             return
         self.global_fault_vector.extend([0])
         self.IP_to_Node_Index[ip] = self.node_index
         self.Index_to_IP[self.node_index] = ip
+        
         for row in self.suspect_matrix:
             row.extend([0])
 
+        # print(self.suspect_matrix)
         if(len(self.suspect_matrix[0]) > 1):
-            self.suspect_matrix.append([0 for i in range(len(self.suspect_matrix[0]))])
-        print(self.suspect_matrix)
+            # self.suspect_matrix.append([0 for i in range(len(self.suspect_matrix[0]))])
+            self.suspect_matrix.append(list(self.global_fault_vector))
+        # print(self.suspect_matrix)
         # print(getMapping())
         print('\n') 
         self.node_index += 1
@@ -49,11 +59,17 @@ class MonitoringNode:
 
     def updateSuspectMatrix(self, ip, fault_vector, generation):
         
-        index = self.getMapping()[ip]
+        try:
+            index = self.getMapping()[ip]
+        except Exception as e:
+            pass
         for k,v in fault_vector.items():
             if v==0:
-                if(self.IP_to_Node_Index[k] in self.ip_generation and generation == self.ip_generation[self.IP_to_Node_Index[k]]):
-                    print('False failure detection happened for ', k)        
+                try:
+                    if(self.IP_to_Node_Index[k] in self.ip_generation and generation == self.ip_generation[self.IP_to_Node_Index[k]]):
+                        print('False failure detection happened for ', k)        
+                except Exception as e:
+                    pass
             # print(self.IP_to_Node_Index, k)
             # if v==0 and (self.IP_to_Node_Index[k] in self.global_fault_vector) and self.global_fault_vector[self.IP_to_Node_Index[k]] == 1:
             #     print(self.IP_to_Node_Index, k)
@@ -85,23 +101,29 @@ class MonitoringNode:
         return self.suspect_matrix
 
     def doConsensus(self):
-        
         for j in range(len(self.suspect_matrix[0])):
             state = 1
+            # flag = 1
             for i in range(len(self.suspect_matrix)):
-                if i != j and (self.global_fault_vector[i] & self.global_fault_vector[j] != 1):
-                    state &= self.suspect_matrix[i][j]
+                if i != j and ((self.global_fault_vector[i]) != 1):
+                    try:
+                        if getDiffInSeconds(self.heartbeatTime[self.Index_to_IP[i]]) < Constants.WAIT_SECONDS_FAIL:
+                            state &= self.suspect_matrix[i][j]
+                    except Exception as e:
+                        pass
             if(state == 1):
+                print(j, self.Index_to_IP[j])
+                print(self.suspect_matrix)
                 print("Node %s is failed" % (self.Index_to_IP[j]))                
             else:
                 print("Node %s is alive" % (self.Index_to_IP[j]))                
             self.global_fault_vector[j] = state
             if(state == 1):
                 # print("global state map----------------//////////\n", len(self.global_state_map))
-                # try:
-                self.ip_generation[j] = self.global_state_map[self.Index_to_IP[j]][self.Index_to_IP[j]]['heartBeat']['generation']
-                # except Exception as e:
-                #     pass
+                try:
+                    self.ip_generation[j] = self.global_state_map[self.Index_to_IP[j]][self.Index_to_IP[j]]['heartBeat']['generation']
+                except Exception as e:
+                    pass
 
                 print('in do consensus generation', self.ip_generation)
         print('end consensus')
@@ -205,3 +227,8 @@ if __name__ == "__main__":
 
         if console_input.strip() == 'fault':
             print(node.global_fault_vector)
+
+        if console_input.strip() == 'consensus':
+            node.doConsensus()
+
+
