@@ -5,6 +5,8 @@ from configuration_manager import ConfigurationManager
 import os
 import time
 import copy
+from utils import *
+import Constants
 
 class MonitoringNode:
     def __init__(self):
@@ -19,6 +21,11 @@ class MonitoringNode:
         self.total_msg_count = 0
         self.consensusMap = defaultdict(defaultdict)
         self.ip_generation = defaultdict()
+        self.heartbeatTime = {}
+
+    def setheartbeatTime(self, ip):
+        # print(ip, 'updating hb\n')
+        self.heartbeatTime[ip] = getTimeStamp()
 
     def setMapping(self,ip):
         
@@ -27,17 +34,20 @@ class MonitoringNode:
         # global Index_to_IP
         # global IP_to_Node_Index
         # global suspect_matrix
-
+        print(self.suspect_matrix)
         if ip in self.IP_to_Node_Index:
             return
         self.global_fault_vector.extend([0])
         self.IP_to_Node_Index[ip] = self.node_index
         self.Index_to_IP[self.node_index] = ip
+        
         for row in self.suspect_matrix:
             row.extend([0])
 
+        print(self.suspect_matrix)
         if(len(self.suspect_matrix[0]) > 1):
-            self.suspect_matrix.append([0 for i in range(len(self.suspect_matrix[0]))])
+            # self.suspect_matrix.append([0 for i in range(len(self.suspect_matrix[0]))])
+            self.suspect_matrix.append(list(self.global_fault_vector))
         print(self.suspect_matrix)
         # print(getMapping())
         print('\n') 
@@ -90,7 +100,8 @@ class MonitoringNode:
             state = 1
             for i in range(len(self.suspect_matrix)):
                 if i != j and (self.global_fault_vector[i] & self.global_fault_vector[j] != 1):
-                    state &= self.suspect_matrix[i][j]
+                    if getDiffInSeconds(self.heartbeatTime[self.Index_to_IP[i]]) < Constants.WAIT_SECONDS_FAIL:
+                        state &= self.suspect_matrix[i][j]
             if(state == 1):
                 print("Node %s is failed" % (self.Index_to_IP[j]))                
             else:
@@ -205,3 +216,8 @@ if __name__ == "__main__":
 
         if console_input.strip() == 'fault':
             print(node.global_fault_vector)
+
+        if console_input.strip() == 'consensus':
+            node.doConsensus()
+
+
