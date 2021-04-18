@@ -34,7 +34,7 @@ class MonitoringNode:
         # global Index_to_IP
         # global IP_to_Node_Index
         # global suspect_matrix
-        print(self.suspect_matrix)
+        # print(self.suspect_matrix)
         if ip in self.IP_to_Node_Index:
             return
         self.global_fault_vector.extend([0])
@@ -44,11 +44,11 @@ class MonitoringNode:
         for row in self.suspect_matrix:
             row.extend([0])
 
-        print(self.suspect_matrix)
+        # print(self.suspect_matrix)
         if(len(self.suspect_matrix[0]) > 1):
             # self.suspect_matrix.append([0 for i in range(len(self.suspect_matrix[0]))])
             self.suspect_matrix.append(list(self.global_fault_vector))
-        print(self.suspect_matrix)
+        # print(self.suspect_matrix)
         # print(getMapping())
         print('\n') 
         self.node_index += 1
@@ -98,11 +98,16 @@ class MonitoringNode:
         
         for j in range(len(self.suspect_matrix[0])):
             state = 1
+            # flag = 1
             for i in range(len(self.suspect_matrix)):
-                if i != j and (self.global_fault_vector[i] & self.global_fault_vector[j] != 1):
+                if i != j and ((self.global_fault_vector[i]) != 1):
+                    # print('first if')
                     if getDiffInSeconds(self.heartbeatTime[self.Index_to_IP[i]]) < Constants.WAIT_SECONDS_FAIL:
+                        # print('second if')
                         state &= self.suspect_matrix[i][j]
             if(state == 1):
+                # print(j, self.Index_to_IP[j])
+                # print(self.suspect_matrix)
                 print("Node %s is failed" % (self.Index_to_IP[j]))                
             else:
                 print("Node %s is alive" % (self.Index_to_IP[j]))                
