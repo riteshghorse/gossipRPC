@@ -33,7 +33,7 @@ class Node(object):
         self.handshake_nodes = list()
         self.message_count = 0
         self.rr_index = 0
-        self.rr_list = None
+        self.rr_list = []
         self.gossip_version = 0
         
     def updateHearbeat(self):
@@ -77,10 +77,7 @@ class Node(object):
     
 
     def updateAliveStatus(self, ip):
-        # print('before\n', self.endpoint_state_map[ip]['last_updated_time'])
         self.endpoint_state_map[ip]['last_updated_time'] = getTimeStamp()
-        # print('after \n', self.endpoint_state_map[ip]['last_updated_time'])
-        # if ip in self.fault_vector and self.fault_vector[ip] == 1:
         if ip in self.fault_vector and self.fault_vector[ip] == 1:
             self.fault_vector[ip] = 0
             
@@ -225,8 +222,7 @@ class Node(object):
             self.rr_list.pop(self.ip, None)
 
         print('-------------')
-        print(self.rr_list, self.fault_vector)
-        print(self.endpoint_state_map)
+        print(self.handshake_nodes, self.fault_vector)
         print('-------------')
 
         from gossip_server import scheduler, scheduleGossip
@@ -248,6 +244,36 @@ class Node(object):
         self.rr_index =  (self.rr_index + 1) % len(self.rr_list)
         print('round robin ' + str(self.rr_index) + 'done')
 
+    def initiateBinaryRRGossip(self):     
+        
+        if len(self.rr_list)==0 or self.rr_index % len(self.rr_list) == 0:
+            self.rr_list = copy.deepcopy(self.gDigestList)
+            self.rr_list.pop(self.ip, None)
+
+
+        from gossip_server import scheduler, scheduleGossip
+
+        print('In round: '+str(self.rr_round))
+        keyList = list(self.rr_list.keys() - self.ip)
+        # random_numbers = sample(range(0, len(keyList)), 3)
+        # print('-------------------------------------------------')
+        self.message_count += 1
+        # print(keyList, random_numbers)
+        # for i in random_numbers:
+        ip = keyList[self.rr_index]
+        if self.isInHandshake(ip):
+            try:
+                client =  xmlrpc.client.ServerProxy('http://' + ip + '/RPC2')
+                client.receiveGossip(self.gDigestList, self.ip)
+            except Exception as e:
+                pass
+        else:
+            print('--------------------> sending syn'+ip)
+            self.sendSYN(ip)
+        self.rr_index =  (self.rr_index + 2**(self.rr_round)) % len(self.rr_list)
+        self.rr_round += 1
+        print('round robin ' + str(self.rr_round) + 'done')
+
     def startGossip(self, gossip_protocol):
         if gossip_protocol == Constants.RANDOM_GOSSIP:
             self.initiateRandomGossip()
@@ -255,10 +281,12 @@ class Node(object):
         elif gossip_protocol == Constants.RR_GOSSIP:
             self.initiateRRGossip()
 
+        elif gossip_protocol == Constants.BRR_GOSSIP:
+            self.initiateBinaryRRGossip()
     def receiveGossip(self, digestList, clientIp):
         
         #TODO: add application version in later stage as well for comparison
-        print('gossip received from--\n' + clientIp, digestList)
+        print('gossip received from--\n' + clientIp, )
         # print('my digest', self.gDigestList)
         currenttList = copy.deepcopy(self.gDigestList)
         for ip, digest in digestList.items():
