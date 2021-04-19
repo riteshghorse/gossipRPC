@@ -1,5 +1,17 @@
 {
     "port": 5000,
     "seed_host": "node2",
-    "seed_port": 5000
+    "seed_port": 5000,
+    "heart_beat_state" : {
+        "heart_beat_value": 69,
+        "generation": 69
+    },
+    "app_state" : {
+        "app_version": 69,
+        "app_status": 69
+    },
+    "endpoint_state" : {
+        "last_updated_time": 69
+    }
+    
 }

@@ -30,6 +30,15 @@ class Configuration(object):
 
     def get_seed_host(self):
         return self._config["seed_host"]
+    
+    def get_heart_beat_state(self):
+        return self._config["heart_beat_state"]
+
+    def get_app_state(self):
+        return self._config["app_state"]
+    
+    def get_endpoint_state(self):
+        return self._config["endpoint_state"]
 
     def _set_config(self):
 

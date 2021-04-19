@@ -1,8 +1,10 @@
 from xmlrpc.server import SimpleXMLRPCServer
 import xmlrpc.client
 
+
 def is_odd(n):
     return n % 2 == 1
+
 
 server = SimpleXMLRPCServer(("localhost", 8002))
 print("Listening on port 8002...")

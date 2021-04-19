@@ -1,11 +1,12 @@
 from time import sleep
 from threading import Timer
 
+
 class RepeatedTimer(object):
     def __init__(self, interval, function, *args, **kwargs):
-        self._timer     = None
-        self.interval   = interval
-        self.function   = function
+        self._timer = None
+        self.interval = interval
+        self.function = function
         self.is_running = False
         self.start()
 
@@ -26,11 +27,12 @@ class RepeatedTimer(object):
 
 
 def hello():
-    print( "Hello\n")
+    print("Hello\n")
 
-print ("starting...")
-rt = RepeatedTimer(1, hello) # it auto-starts, no need of rt.start()
+
+print("starting...")
+rt = RepeatedTimer(1, hello)  # it auto-starts, no need of rt.start()
 try:
-    sleep(30) # your long-running job goes here...
+    sleep(30)  # your long-running job goes here...
 finally:
-    rt.stop() # better in a try/finally block to make sure the program ends!
+    rt.stop()  # better in a try/finally block to make sure the program ends!

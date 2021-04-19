@@ -9,7 +9,6 @@ import threading
 import argparse
 import random
 import sched
-# import time
 import json
 import threading
 import Constants
@@ -18,9 +17,11 @@ from RepeatedTimer import RepeatedTimer
 import xmlrpc.client
 from utils import *
 
-monitor_client =  xmlrpc.client.ServerProxy('http://' + Constants.MONITOR_ADDRESS + '/RPC2')
+monitor_client = xmlrpc.client.ServerProxy(
+    "http://" + Constants.MONITOR_ADDRESS + "/RPC2"
+)
 scheduler = sched.scheduler(time.time, time.sleep)
-# proxy = xmlrpc.client.ServerProxy("http://localhost:8000/") 
+# proxy = xmlrpc.client.ServerProxy("http://localhost:8000/")
 # cket.gethostbyname(hostname)
 def start_gossip_node(gossip_node):
     XMLRPCGossipManager.start_server(gossip_node)
@@ -32,20 +33,21 @@ def stop_gossip_node():
 
 def get_arguments():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config',
-                        required=False,
-                        action='store',
-                        dest='config',
-                        help='Location to configuration file.',
-                        type=str)
-
-
+    parser.add_argument(
+        "--config",
+        required=False,
+        action="store",
+        dest="config",
+        help="Location to configuration file.",
+        type=str,
+    )
 
     results = parser.parse_args()
     configuration_file = results.config
 
     # return configuration_file, bootstrap_server, server_id, no_hash
     return configuration_file
+
 
 def stabilize_call(node):
     node.updateHearbeat()
@@ -60,32 +62,33 @@ def scheduleGossip(node):
     node.startGossip(Constants.RR_GOSSIP)
     node.gossip_version = Constants.ROUND_ROBIN
 
-    
-    
     if len(node.live_nodes) == len(node.endpoint_state_map):
         # print('***************** sent epstate map ******************')
         # print(node.message_count)
-        monitor_client.sendEpStateMap(node.ip, node.endpoint_state_map, node.message_count)
+        monitor_client.sendEpStateMap(
+            node.ip, node.endpoint_state_map, node.message_count
+        )
     flag_fault = False
-    for k,v in node.endpoint_state_map.items():
+    for k, v in node.endpoint_state_map.items():
         if k != node.ip:
-            deltatime = getDiffInSeconds(v['last_updated_time'])
+            deltatime = getDiffInSeconds(v["last_updated_time"])
             # print('**---++++++ diff:', deltatime)
-            if(deltatime >= Constants.WAIT_SECONDS_FAIL):
+            if deltatime >= Constants.WAIT_SECONDS_FAIL:
                 flag_fault = True
 
                 node.fault_vector[k] = 1
-                # print(node.fault_vector)    
+                # print(node.fault_vector)
                 # monitor_client.
-    
+
     if flag_fault:
-        monitor_client.updateSuspectMatrix(node.ip, node.fault_vector, node.heart_beat_state["generation"])
+        monitor_client.updateSuspectMatrix(
+            node.ip, node.fault_vector, node.heart_beat_state["generation"]
+        )
     # send end point state map to the monitoring node only when
     # it has done handshake with all live  nodes
     # print('***************** before sending epstate map ******************')
     # print(node.live_nodes, len(node.endpoint_state_map))
-    
-    
+
     scheduler.enter(5, 2, scheduleGossip, (node,))
 
 
@@ -99,33 +102,53 @@ if __name__ == "__main__":
     configuration_file = get_arguments()
     from egnode import Node
     import socket
+
     if configuration_file == None:
-        server_ip =  socket.gethostbyname(socket.gethostname()) #"localhost"
+        server_ip = socket.gethostbyname(socket.gethostname())  # "localhost"
         server_port = 5000
-        data = {"host": server_ip, "port": server_port, "seed_host": 'node1', "seed_port": 5000}
-        with open('config_'+str(server_port), 'w') as outfile:
+        data = {
+            "host": server_ip,
+            "port": server_port,
+            "seed_host": "node1",
+            "seed_port": 5000,
+        }
+        with open("config_" + str(server_port), "w") as outfile:
             json.dump(data, outfile)
-        os.environ["GOSSIP_CONFIG"] = 'config_'+str(server_port)
+        os.environ["GOSSIP_CONFIG"] = "config_" + str(server_port)
     else:
         os.environ["GOSSIP_CONFIG"] = configuration_file
         ConfigurationManager.reset_configuration()
 
-        server_ip =  socket.gethostbyname(socket.gethostname())#ConfigurationManager.get_configuration().get_gossip_host()
+        server_ip = socket.gethostbyname(
+            socket.gethostname()
+        )  
         server_port = ConfigurationManager.get_configuration().get_gossip_port()
-    
-    server_id = random.randint(1, 1000)
+
+        server_id = random.randint(1, 1000)
+        # heart_beat_state=ConfigurationManager.get_configuration().get_heart_beat_state()
+        # app_state = ConfigurationManager.get_configuration().get_app_state()
+        # endpoint_state_map = ConfigurationManager.get_configuration().get_endpoint_state()
+
+    #node = Node(server_ip, server_port, server_id,heart_beat_state = heart_beat_state, app_state = app_state, endpoint_state = endpoint_state_map)
     node = Node(server_ip, server_port, server_id)
 
+    print("The initial End point state map is")
+    print(node.heart_beat_state)
+    print("----------------------------")
+    print(node.app_state)
+    print("*******************")
+    print(node.endpoint_state_map)
+
     start_gossip_node(node)
-    
+
     # register this node to monitoring node
-    monitor_client.setMapping(str(server_ip)+':'+str(server_port))
+    monitor_client.setMapping(str(server_ip) + ":" + str(server_port))
     monitor_client.sendEpStateMap(node.ip, node.endpoint_state_map, node.message_count)
     flag = 0
     scheduler.enter(1, 1, stabilize_call, (node,))
     stabilization_thread = threading.Thread(target=scheduler.run, args=(True,))
     stabilization_thread.start()
-    #update heartbeat every 1 sec
+    # update heartbeat every 1 sec
     # happens internally
     # node.updateHearbeat()
     # rt = RepeatedTimer(1, node.updateHearbeat())
@@ -139,20 +162,24 @@ if __name__ == "__main__":
         # t = threading.Timer(Constants.WAIT_SECONDS_HEARTBEAT, node.updateHearbeat()).start()
 
         console_input = input("\n1.connect\n2.consensus")
-        
+
         if console_input.strip() == "stop":
-        
+
             stop_gossip_node()
             break
 
         if console_input.strip() == "connect":
             flag = 1
             # pass
-            #contact_ip = input("Enter ip/host of node to contact")
-            #contact_port = input("Enter port of node to contact")
+            # contact_ip = input("Enter ip/host of node to contact")
+            # contact_port = input("Enter port of node to contact")
 
-            #node.contact_node(contact_ip, contact_port)
-            inp = str(ConfigurationManager.get_configuration().get_seed_host())+':'+str(ConfigurationManager.get_configuration().get_seed_port())
+            # node.contact_node(contact_ip, contact_port)
+            inp = (
+                str(ConfigurationManager.get_configuration().get_seed_host())
+                + ":"
+                + str(ConfigurationManager.get_configuration().get_seed_port())
+            )
             node.sendSYN(inp)
             scheduler.enter(5, 2, scheduleGossip, (node,))
             # node.sendACK2()

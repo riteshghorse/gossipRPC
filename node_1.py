@@ -4,19 +4,18 @@ from collections import defaultdict
 
 # Required Data Structures
 
-endpoint_state_map = defaultdict(defaultdict())  #{IP_Port:{'heartBeat':[version, generation], 'appState':[], 'last_msg_received': time}}
-heart_beat_state = defaultdict() #{"heartBeatValue": , "generation": } 
-app_state = defaultdict() # {"IP_Port": , "App_version": , "App status": }
+endpoint_state_map = defaultdict(
+    defaultdict()
+)  # {IP_Port:{'heartBeat':[version, generation], 'appState':[], 'last_msg_received': time}}
+heart_beat_state = defaultdict()  # {"heartBeatValue": , "generation": }
+app_state = defaultdict()  # {"IP_Port": , "app_version": , "app status": }
 # suspect_matrix = list(list)
-fault_vector = list()   
+fault_vector = list()
 live_nodes = set()
 dead_nodes = set()
 
 
-# gDigest = {IP_port : [Application_version, generation, heartbeat_value]} 
-
-
-
+# gDigest = {IP_port : [Application_version, generation, heartbeat_value]}
 
 
 class AckGossipDigest:
@@ -31,7 +30,6 @@ class AckGossipDigest:
         return self._epStateMap
 
 
-
 class AckVerbHandler:
     def handleAck(self, ackDigestMessage):
         gDigestList = ackDigestMessage.getDigestList()
@@ -43,12 +41,12 @@ class AckVerbHandler:
             IP_port = list(gDigest.keys())[0]
             deltaEpStateMap[IP_port] = endpoint_state_map[IP_port]
 
-        for k,v in epStateMap:
-            if epStateMap[k]["heartBeat"][0] > endpoint_state_map[k]["heartBeat"][0]: 
+        for k, v in epStateMap:
+            if epStateMap[k]["heartBeat"][0] > endpoint_state_map[k]["heartBeat"][0]:
                 endpoint_state_map[k] = v
 
         # send ack2 gossip digest
-          
+
 
 class Ack2GossipDigest:
     def __init__(self, epStateMap):
@@ -61,15 +59,14 @@ class Ack2GossipDigest:
 class Ack2VerbHandler:
     def handleAck2(self, ack2DigestMessage):
         epStateMap = ack2DigestMessage.getEpStateMap()
-        
 
         for inp, epState in epStateMap.items():
-       
+
             if inp in endpoint_state_map.keys():
                 remote_generation = gDigestList[IP_port][1]
                 remote_heartbeat = gDigestList[IP_port][2]
 
-                if (heart_beat_state["generation"] < remote_generation):
+                if heart_beat_state["generation"] < remote_generation:
                     endpoint_state_map[inp] = epState
 
                 elif heart_beat_state["generation"] == remote_generation:
@@ -78,7 +75,6 @@ class Ack2VerbHandler:
 
             else:
                 endpoint_state_map[inp] = epState
-
 
 
 def markDead(ip):
@@ -96,9 +92,7 @@ def markDead(ip):
 
         fault_vector[index] = 1
         updateSuspectMatrix(ip, fault_vector)
-        
 
-    
 
 server = SimpleXMLRPCServer(("localhost", 8001))
 print("Listening on port 8001...")
