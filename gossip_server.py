@@ -57,14 +57,14 @@ def stabilize_call(node):
 def scheduleGossip(node):
     # print('\nscheduling gossip')
     # node.startGossip(Constants.RANDOM_GOSSIP)
-    node.startGossip(Constants.RR_GOSSIP)
+    # node.startGossip(Constants.RR_GOSSIP)
+    node.startGossip(Constants.BRR_GOSSIP)
     node.gossip_version = Constants.ROUND_ROBIN
 
     
-    
+    # send end point state map to the monitoring node only when
+    # it has done handshake with all live  nodes
     if len(node.live_nodes) == len(node.endpoint_state_map):
-        # print('***************** sent epstate map ******************')
-        # print(node.message_count)
         monitor_client.sendEpStateMap(node.ip, node.endpoint_state_map, node.message_count)
     flag_fault = False
     for k,v in node.endpoint_state_map.items():
@@ -80,17 +80,8 @@ def scheduleGossip(node):
     
     if flag_fault:
         monitor_client.updateSuspectMatrix(node.ip, node.fault_vector, node.heart_beat_state["generation"])
-    # send end point state map to the monitoring node only when
-    # it has done handshake with all live  nodes
-    # print('***************** before sending epstate map ******************')
-    # print(node.live_nodes, len(node.endpoint_state_map))
-    
     
     scheduler.enter(5, 2, scheduleGossip, (node,))
-
-
-# def start_measuring(node):
-#     node.
 
 
 if __name__ == "__main__":

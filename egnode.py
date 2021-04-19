@@ -10,7 +10,7 @@ import datetime
 import threading
 import copy
 from random import sample
-
+import math
 
 
 monitor_client =  xmlrpc.client.ServerProxy('http://' + Constants.MONITOR_ADDRESS + '/RPC2')
@@ -35,7 +35,8 @@ class Node(object):
         self.rr_index = 0
         self.rr_list = []
         self.gossip_version = 0
-        
+        self.rr_round = 0
+
     def updateHearbeat(self):
         self.heart_beat_state["heartBeatValue"] += 1
         self.endpoint_state_map[self.ip]['heartBeat'] = self.heart_beat_state
@@ -77,12 +78,18 @@ class Node(object):
     
 
     def updateAliveStatus(self, ip):
-        self.endpoint_state_map[ip]['last_updated_time'] = getTimeStamp()
-        if ip in self.fault_vector and self.fault_vector[ip] == 1:
-            self.fault_vector[ip] = 0
-            
-            print("++++++++++++++", ip)
-            monitor_client.updateSuspectMatrix(self.ip, self.fault_vector, self.getGeneration())
+        try:
+            self.endpoint_state_map[ip]['last_updated_time'] = getTimeStamp()
+        except Exception as e:
+            pass
+        # if ip in self.fault_vector and self.fault_vector[ip] == 1:
+        self.fault_vector[ip] = 0
+        
+        # print("++++++++++++++", ip)
+        try:
+            monitor_client.updateSuspectMatrix(self.ip, self.fault_vector, self.getGeneration(ip))
+        except Exception as e:
+            pass
 
     def acceptAck(self, deltaGDigest, deltaEpStateMap, clientIp):
         print('\nin accept ack')
@@ -246,32 +253,33 @@ class Node(object):
 
     def initiateBinaryRRGossip(self):     
         
-        if len(self.rr_list)==0 or self.rr_index % len(self.rr_list) == 0:
+        if len(self.rr_list)==0 or len(self.rr_list)==1 or self.rr_round-1 > math.log2(len(self.rr_list)):
             self.rr_list = copy.deepcopy(self.gDigestList)
             self.rr_list.pop(self.ip, None)
-
+            self.rr_index = 0
+            self.rr_round = 0
 
         from gossip_server import scheduler, scheduleGossip
 
         print('In round: '+str(self.rr_round))
-        keyList = list(self.rr_list.keys() - self.ip)
-        # random_numbers = sample(range(0, len(keyList)), 3)
-        # print('-------------------------------------------------')
+        keyList = list(self.rr_list.keys())
+        print('my list-->', keyList)
         self.message_count += 1
-        # print(keyList, random_numbers)
-        # for i in random_numbers:
         ip = keyList[self.rr_index]
+        print("ip i'm sending--> ", ip)
         if self.isInHandshake(ip):
             try:
                 client =  xmlrpc.client.ServerProxy('http://' + ip + '/RPC2')
                 client.receiveGossip(self.gDigestList, self.ip)
             except Exception as e:
+                print(e)
                 pass
         else:
             print('--------------------> sending syn'+ip)
             self.sendSYN(ip)
         self.rr_index =  (self.rr_index + 2**(self.rr_round)) % len(self.rr_list)
         self.rr_round += 1
+        print(self.rr_index)
         print('round robin ' + str(self.rr_round) + 'done')
 
     def startGossip(self, gossip_protocol):
@@ -283,6 +291,7 @@ class Node(object):
 
         elif gossip_protocol == Constants.BRR_GOSSIP:
             self.initiateBinaryRRGossip()
+
     def receiveGossip(self, digestList, clientIp):
         
         #TODO: add application version in later stage as well for comparison
@@ -293,24 +302,35 @@ class Node(object):
             if ip == self.ip:
                 continue
 
+            
             if ip in self.gDigestList:
                 # print('if')
                 if self.gDigestList[ip][1] < digest[1]:
                     currenttList[ip] = digest
-                    self.endpoint_state_map[ip]['appState']['App_version'] = digest[0]
-                    self.endpoint_state_map[ip]['heartBeat']['generation'] = digest[1]
-                    self.endpoint_state_map[ip]['heartBeat']['heartBeatValue'] = digest[2]
+                    try:
+                        self.endpoint_state_map[ip]['appState']['App_version'] = digest[0]
+                        self.endpoint_state_map[ip]['heartBeat']['generation'] = digest[1]
+                        self.endpoint_state_map[ip]['heartBeat']['heartBeatValue'] = digest[2]
+                    except Exception as e:
+                        print('passed the exception')
+                        pass            
                 elif self.gDigestList[ip][2] < digest[2] and self.gDigestList[ip][1] == digest[1]:
-                    self.endpoint_state_map[ip]['heartBeat']['heartBeatValue'] = digest[2]
                     currenttList[ip][2] = digest[2]
+                    try:
+                        self.endpoint_state_map[ip]['heartBeat']['heartBeatValue'] = digest[2]
+                    except Exception as e:
+                        print('passed the exception')
+                        pass            
+                
                     if self.gossip_version == Constants.ROUND_ROBIN:
                         self.updateAliveStatus(ip)
+
             else:
                 currenttList[ip] = digest
-            
+        
             
 
-        self.gDigestList = currenttList
+        self.gDigestList = copy.deepcopy(currenttList)
         # updating timestamp for clientIp
         if clientIp in self.endpoint_state_map:
             self.updateAliveStatus(clientIp)
