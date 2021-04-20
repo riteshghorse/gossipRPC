@@ -28,13 +28,6 @@ class MonitoringNode:
         self.heartbeatTime[ip] = getTimeStamp()
 
     def setMapping(self,ip):
-        
-        # global node_index
-        # global global_fault_vector
-        # global Index_to_IP
-        # global IP_to_Node_Index
-        # global suspect_matrix
-        # print(self.suspect_matrix)
         if ip in self.IP_to_Node_Index:
             return
         self.global_fault_vector.extend([0])
@@ -48,9 +41,8 @@ class MonitoringNode:
         if(len(self.suspect_matrix[0]) > 1):
             # self.suspect_matrix.append([0 for i in range(len(self.suspect_matrix[0]))])
             self.suspect_matrix.append(list(self.global_fault_vector))
-        # print(self.suspect_matrix)
-        # print(getMapping())
-        print('\n') 
+
+        # print('\n') 
         self.node_index += 1
 
     def getMapping(self):
@@ -60,6 +52,8 @@ class MonitoringNode:
     def updateSuspectMatrix(self, ip, fault_vector, generation):
         
         try:
+            if self.global_fault_vector[self.IP_to_Node_Index[ip]] == 1:
+                self.global_fault_vector[self.IP_to_Node_Index[ip]] = 0
             index = self.getMapping()[ip]
         except Exception as e:
             pass
@@ -108,6 +102,7 @@ class MonitoringNode:
                 if i != j and ((self.global_fault_vector[i]) != 1):
                     # print('first if')
                     try:
+                        print('/// time: ', self.heartbeatTime[self.Index_to_IP[i]])
                         if getDiffInSeconds(self.heartbeatTime[self.Index_to_IP[i]]) < Constants.WAIT_SECONDS_FAIL:
                             state &= self.suspect_matrix[i][j]
                     except Exception as e:

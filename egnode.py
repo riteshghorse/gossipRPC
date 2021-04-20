@@ -272,19 +272,19 @@ class Node(object):
 
     def initiateBinaryRRGossip(self):     
         
-        if len(self.rr_list)==0 or len(self.rr_list)==1 or self.rr_round-1 > math.log2(len(self.rr_list)):
-            self.rr_list = copy.deepcopy(self.gDigestList)
-            self.rr_list.pop(self.ip, None)
-            self.rr_index = 0
+        if len(self.rr_list)==0 or self.rr_round-1 > math.log2(len(self.rr_list)):
+            self.rr_list = provider_node.getMapping()
+            # self.rr_list.pop(self.ip, None)
+            self.rr_index = self.rr_list.index(self.ip) + 1
             self.rr_round = 0
 
         from gossip_server import scheduler, scheduleGossip
 
         print('In round: '+str(self.rr_round))
-        keyList = list(self.rr_list.keys())
-        print('my list-->', keyList)
+        # keyList = list(self.rr_list.keys())
+        # print('my list-->', keyList)
         self.message_count += 1
-        ip = keyList[self.rr_index]
+        ip = self.rr_list[(self.rr_index)%len(self.rr_list)]
         print("ip i'm sending--> ", ip)
         if self.isInHandshake(ip):
             try:
