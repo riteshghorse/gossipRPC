@@ -19,6 +19,8 @@ import xmlrpc.client
 from utils import *
 
 monitor_client =  xmlrpc.client.ServerProxy('http://' + Constants.MONITOR_ADDRESS + '/RPC2')
+provider_node =  xmlrpc.client.ServerProxy('http://' + Constants.PROVIDER_ADDRESS + '/RPC2')
+
 scheduler = sched.scheduler(time.time, time.sleep)
 # proxy = xmlrpc.client.ServerProxy("http://localhost:8000/") 
 
@@ -51,7 +53,7 @@ def stabilize_call(node):
     node.updateHearbeat()
     # send heartbeat to monitor
     monitor_client.setheartbeatTime(node.ip)
-    scheduler.enter(1, 1, stabilize_call, (node,))
+    scheduler.enter(Constants.WAIT_SECONDS_HEARTBEAT, Constants.HEARTBEAT_PRIO, stabilize_call, (node,))
 
 
 def scheduleGossip(node):
@@ -59,13 +61,15 @@ def scheduleGossip(node):
     # node.startGossip(Constants.RANDOM_GOSSIP)
     # node.startGossip(Constants.RR_GOSSIP)
     node.startGossip(Constants.BRR_GOSSIP)
+    # node.startGossip(Constants.SCRR_GOSSIP)
     node.gossip_version = Constants.ROUND_ROBIN
-
+    # node.gossip_protocol = Constants.SCRR_GOSSIP
     
     # send end point state map to the monitoring node only when
     # it has done handshake with all live  nodes
     if len(node.live_nodes) == len(node.endpoint_state_map):
         monitor_client.sendEpStateMap(node.ip, node.endpoint_state_map, node.message_count)
+
     flag_fault = False
     for k,v in node.endpoint_state_map.items():
         if k != node.ip:
@@ -81,7 +85,7 @@ def scheduleGossip(node):
     if flag_fault:
         monitor_client.updateSuspectMatrix(node.ip, node.fault_vector, node.heart_beat_state["generation"])
     
-    scheduler.enter(5, 2, scheduleGossip, (node,))
+    scheduler.enter(Constants.WAIT_SECONDS_GOSSIP, Constants.GOSSIP_PRIO, scheduleGossip, (node,))
 
 
 if __name__ == "__main__":
@@ -110,9 +114,10 @@ if __name__ == "__main__":
     
     # register this node to monitoring node
     monitor_client.setMapping(str(server_ip)+':'+str(server_port))
+    provider_node.setMapping(str(server_ip)+':'+str(server_port))
     monitor_client.sendEpStateMap(node.ip, node.endpoint_state_map, node.message_count)
     flag = 0
-    scheduler.enter(1, 1, stabilize_call, (node,))
+    scheduler.enter(Constants.WAIT_SECONDS_HEARTBEAT, Constants.HEARTBEAT_PRIO, stabilize_call, (node,))
     stabilization_thread = threading.Thread(target=scheduler.run, args=(True,))
     stabilization_thread.start()
     #update heartbeat every 1 sec
@@ -144,7 +149,7 @@ if __name__ == "__main__":
             #node.contact_node(contact_ip, contact_port)
             inp = str(ConfigurationManager.get_configuration().get_seed_host())+':'+str(ConfigurationManager.get_configuration().get_seed_port())
             node.sendSYN(inp)
-            scheduler.enter(5, 2, scheduleGossip, (node,))
+            scheduler.enter(Constants.WAIT_SECONDS_GOSSIP, Constants.GOSSIP_PRIO, scheduleGossip, (node,))
             # node.sendACK2()
 
         if console_input.strip() == "consensus":

@@ -106,13 +106,15 @@ class MonitoringNode:
             # flag = 1
             for i in range(len(self.suspect_matrix)):
                 if i != j and ((self.global_fault_vector[i]) != 1):
+                    # print('first if')
                     try:
                         if getDiffInSeconds(self.heartbeatTime[self.Index_to_IP[i]]) < Constants.WAIT_SECONDS_FAIL:
                             state &= self.suspect_matrix[i][j]
                     except Exception as e:
                         pass
             if(state == 1):
-                print(j, self.Index_to_IP[j])
+                # print(j, self.Index_to_IP[j])
+                # print(j, self.Index_to_IP[j])
                 print(self.suspect_matrix)
                 print("Node %s is failed" % (self.Index_to_IP[j]))                
             else:

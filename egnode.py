@@ -13,7 +13,8 @@ from random import sample
 import math
 
 
-monitor_client =  xmlrpc.client.ServerProxy('http://' + Constants.MONITOR_ADDRESS + '/RPC2')
+monitor_client =  xmlrpc.client.ServerProxy('http://' + Constants.MONITOR_ADDRESS + '/RPC2', allow_none=True)
+provider_node =  xmlrpc.client.ServerProxy('http://' + Constants.PROVIDER_ADDRESS + '/RPC2', allow_none=True)
 
 class Node(object):
 
@@ -36,6 +37,9 @@ class Node(object):
         self.rr_list = []
         self.gossip_version = 0
         self.rr_round = 0
+        self.gossip_protocol= ""
+        self.sc_index = ""    # used in sc round robin for current ip position
+        self.lastReceived = {'ip': "", 'timestamp': ""}
 
     def updateHearbeat(self):
         self.heart_beat_state["heartBeatValue"] += 1
@@ -75,21 +79,36 @@ class Node(object):
             pass
         #TODO: timer for ack expiry
 
-    
-
-    def updateAliveStatus(self, ip):
+    def updateTimestamp(self, ip):
         try:
             self.endpoint_state_map[ip]['last_updated_time'] = getTimeStamp()
         except Exception as e:
             pass
+        
         # if ip in self.fault_vector and self.fault_vector[ip] == 1:
         self.fault_vector[ip] = 0
         
         # print("++++++++++++++", ip)
         try:
+            # print('sending ====')
+            print(self.ip, self.fault_vector)
+            print((self.ip, self.fault_vector, self.getGeneration(ip)))
             monitor_client.updateSuspectMatrix(self.ip, self.fault_vector, self.getGeneration(ip))
         except Exception as e:
+            print(e)
             pass
+        # print('block completed')
+
+    def updateAliveStatus(self, ip, clientIp):
+        # print("-----------------------Within updateAlive status ", self.fault_vector[ip], ip, clientIp)
+        if(self.gossip_protocol == Constants.SCRR_GOSSIP):
+            
+            if(ip not in self.fault_vector or ((self.fault_vector[ip]!=1) or (self.fault_vector[ip]==1 and ip==clientIp))):
+                # print('block 1')
+                self.updateTimestamp(ip)
+        else:
+            print('block 2')
+            self.updateTimestamp(ip)
 
     def acceptAck(self, deltaGDigest, deltaEpStateMap, clientIp):
         print('\nin accept ack')
@@ -113,7 +132,7 @@ class Node(object):
                     self.gDigestList[ip] = [self.endpoint_state_map[ip]['appState']['App_version'], self.endpoint_state_map[ip]['heartBeat']['generation'], self.endpoint_state_map[ip]['heartBeat']['heartBeatValue']]
                     if self.gossip_version == Constants.ROUND_ROBIN:
                         # self.endpoint_state_map[ip]['last_updated_time'] = getTimeStamp()
-                        self.updateAliveStatus(ip)
+                        self.updateAliveStatus(ip, clientIp)
             else:
                 #since i don't know this ip, put entire epState for this ip
                 self.endpoint_state_map[ip] = deltaEpStateMap[ip]
@@ -124,7 +143,7 @@ class Node(object):
         # updating timestamp for clientIp
         if clientIp in self.endpoint_state_map:
             # self.endpoint_state_map[clientIp]['last_updated_time'] = getTimeStamp()
-            self.updateAliveStatus(clientIp)
+            self.updateAliveStatus(clientIp, clientIp)
 
         print("\nACK handled... sending ack2")
         
@@ -159,7 +178,7 @@ class Node(object):
                     #gDIgest list will be forwarded in next rounds of gossip hence it has to be updated
                     self.gDigestList[ip] = [self.endpoint_state_map[ip]['appState']['App_version'], self.endpoint_state_map[ip]['heartBeat']['generation'], self.endpoint_state_map[ip]['heartBeat']['heartBeatValue']]
                     if self.gossip_version == Constants.ROUND_ROBIN:
-                        self.updateAliveStatus(ip)
+                        self.updateAliveStatus(ip, clientIp)
             else:
                 #since i don't know this ip, put entire epState for this ip
                 self.endpoint_state_map[ip] = deltaEpStateMap[ip]
@@ -176,12 +195,12 @@ class Node(object):
         # updating timestamp of clientIp
         # self.endpoint_state_map[clientIp]['last_updated_time'] = getTimeStamp()
         
-        self.updateAliveStatus(clientIp)
+        self.updateAliveStatus(clientIp, clientIp)
         print('\n ACK2 processed... complete handshake')
 
     def getGeneration(self, clientIp):
         if clientIp in self.endpoint_state_map:
-            self.endpoint_state_map[clientIp]["heartBeat"]["generation"]
+            return self.endpoint_state_map[clientIp]["heartBeat"]["generation"]
         else:
             return getCurrentGeneration()
 
@@ -282,6 +301,39 @@ class Node(object):
         print(self.rr_index)
         print('round robin ' + str(self.rr_round) + 'done')
 
+
+    def initiateSCRRGossip(self):
+
+        if len(self.rr_list)==0 or self.rr_index ==  self.sc_index:
+            self.rr_list = provider_node.getMapping()
+            self.sc_index = self.rr_list.index(self.ip)
+            self.rr_index = (self.sc_index + 1) % len(self.rr_list)
+
+        print('-------------')
+        print(self.endpoint_state_map, self.fault_vector)
+        print('-------------')
+
+        from gossip_server import scheduler, scheduleGossip
+        self.rr_round = (self.rr_index - self.sc_index + len(self.rr_list))%len(self.rr_list)
+        print('In round: '+str(self.rr_round))
+        
+        self.message_count += 1
+        ip = self.rr_list[self.rr_index]
+
+        if self.isInHandshake(ip):
+            try:
+                client =  xmlrpc.client.ServerProxy('http://' + ip + '/RPC2')
+                client.receiveGossip(self.gDigestList, self.ip)
+            except Exception as e:
+                pass
+        else:
+            print('--------------------> sending syn'+ip)
+            self.sendSYN(ip)
+        self.rr_index =  (self.rr_index + 1) % len(self.rr_list)
+        print('round robin ' + str(self.rr_round) + 'done')
+
+
+
     def startGossip(self, gossip_protocol):
         if gossip_protocol == Constants.RANDOM_GOSSIP:
             self.initiateRandomGossip()
@@ -292,11 +344,27 @@ class Node(object):
         elif gossip_protocol == Constants.BRR_GOSSIP:
             self.initiateBinaryRRGossip()
 
+        elif gossip_protocol == Constants.SCRR_GOSSIP:
+            self.initiateSCRRGossip()
+
     def receiveGossip(self, digestList, clientIp):
         
         #TODO: add application version in later stage as well for comparison
-        print('gossip received from--\n' + clientIp, )
+        print('gossip received from--\n' + clientIp)
         # print('my digest', self.gDigestList)
+        if self.gossip_protocol == Constants.SCRR_GOSSIP:
+            indexOfClient = self.rr_list.index(clientIp)
+            lastReceivedIp = self.rr_list[(indexOfClient + 1)%len(self.rr_list)]
+            print("----->", lastReceivedIp)
+            if lastReceivedIp != self.ip:
+                if(lastReceivedIp != self.lastReceived['ip']) or \
+                    (getDiffInSeconds(self.lastReceived['timestamp']) > Constants.WAIT_SECONDS_FAIL):
+                    self.fault_vector[lastReceivedIp] = 1
+                    monitor_client.updateSuspectMatrix(self.ip, self.fault_vector, self.getGeneration(lastReceivedIp))
+        
+            self.lastReceived['ip'] = clientIp
+            self.lastReceived['timestamp'] = getTimeStamp()
+
         currenttList = copy.deepcopy(self.gDigestList)
         for ip, digest in digestList.items():
             if ip == self.ip:
@@ -323,14 +391,14 @@ class Node(object):
                         pass            
                 
                     if self.gossip_version == Constants.ROUND_ROBIN:
-                        self.updateAliveStatus(ip)
+                        self.updateAliveStatus(ip, clientIp)
 
             else:
                 currenttList[ip] = digest
-        
+                   
             
 
         self.gDigestList = copy.deepcopy(currenttList)
         # updating timestamp for clientIp
         if clientIp in self.endpoint_state_map:
-            self.updateAliveStatus(clientIp)
+            self.updateAliveStatus(clientIp, clientIp)
