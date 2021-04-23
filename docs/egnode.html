@@ -1,0 +1,118 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module egnode</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>egnode</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/ritesh/gossipRPC/egnode.py">/home/ritesh/gossipRPC/egnode.py</a></font></td></tr></table>
+    <p></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="Constants.html">Constants</a><br>
+<a href="copy.html">copy</a><br>
+</td><td width="25%" valign=top><a href="datetime.html">datetime</a><br>
+<a href="math.html">math</a><br>
+</td><td width="25%" valign=top><a href="threading.html">threading</a><br>
+<a href="xmlrpc.html">xmlrpc</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="builtins.html#object">builtins.object</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="egnode.html#Node">Node</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="Node">class <strong>Node</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
+    
+<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="Node-__init__"><strong>__init__</strong></a>(self, host, port, id)</dt><dd><tt>Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</tt></dd></dl>
+
+<dl><dt><a name="Node-acceptAck"><strong>acceptAck</strong></a>(self, deltaGDigest, deltaEpStateMap, clientIp)</dt></dl>
+
+<dl><dt><a name="Node-acceptAck2"><strong>acceptAck2</strong></a>(self, deltaEpStateMap, clientIp)</dt></dl>
+
+<dl><dt><a name="Node-acceptSyn"><strong>acceptSyn</strong></a>(self, synDigest, clientIp)</dt></dl>
+
+<dl><dt><a name="Node-getGeneration"><strong>getGeneration</strong></a>(self, clientIp)</dt></dl>
+
+<dl><dt><a name="Node-initiateBinaryRRGossip"><strong>initiateBinaryRRGossip</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="Node-initiateRRGossip"><strong>initiateRRGossip</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="Node-initiateRandomGossip"><strong>initiateRandomGossip</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="Node-initiateSCRRGossip"><strong>initiateSCRRGossip</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="Node-isInHandshake"><strong>isInHandshake</strong></a>(self, ip)</dt></dl>
+
+<dl><dt><a name="Node-isInLivenodes"><strong>isInLivenodes</strong></a>(self, ip)</dt></dl>
+
+<dl><dt><a name="Node-receiveGossip"><strong>receiveGossip</strong></a>(self, digestList, clientIp)</dt><dd><tt>Authors:&nbsp;Ritesh&nbsp;G,&nbsp;Shreyas&nbsp;M<br>
+:param&nbsp;digestList:&nbsp;&nbsp;gossip&nbsp;digest&nbsp;list&nbsp;received&nbsp;from&nbsp;clientIP<br>
+:param&nbsp;clientIp:&nbsp;&nbsp;&nbsp;&nbsp;IP&nbsp;of&nbsp;sender&nbsp;node<br>
+&nbsp;<br>
+&nbsp;<br>
+RANDOM:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Add&nbsp;the&nbsp;unknown&nbsp;IPs&nbsp;to&nbsp;its&nbsp;own&nbsp;digest&nbsp;list.&nbsp;Update&nbsp;the&nbsp;EndPoint&nbsp;State&nbsp;Map<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;the&nbsp;IPs&nbsp;which&nbsp;are&nbsp;already&nbsp;in&nbsp;its&nbsp;EndPoint&nbsp;State&nbsp;Map.&nbsp;Update&nbsp;the&nbsp;last_updated_time<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;the&nbsp;clientIp.<br>
+&nbsp;<br>
+ROUND_ROBIN:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Perform&nbsp;the&nbsp;same&nbsp;operation&nbsp;as&nbsp;that&nbsp;of&nbsp;RANDOM.&nbsp;In&nbsp;addition&nbsp;to&nbsp;this&nbsp;update&nbsp;the&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;last_updated_time&nbsp;for&nbsp;the&nbsp;IPs&nbsp;received&nbsp;in&nbsp;digestList&nbsp;which&nbsp;are&nbsp;already&nbsp;in&nbsp;its<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EndPoint&nbsp;State&nbsp;Map&nbsp;for&nbsp;that&nbsp;round.<br>
+&nbsp;<br>
+BINARY_ROUND_ROBIN:&nbsp;Same&nbsp;as&nbsp;ROUND_ROBIN.<br>
+&nbsp;<br>
+SEQUENCE_CHECK:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Same&nbsp;as&nbsp;ROUND_ROBIN.&nbsp;In&nbsp;addition&nbsp;to&nbsp;this,&nbsp;it&nbsp;checks&nbsp;if&nbsp;the&nbsp;it&nbsp;missed&nbsp;any&nbsp;gossip&nbsp;from&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a&nbsp;IP&nbsp;in&nbsp;previous&nbsp;round.&nbsp;In&nbsp;this&nbsp;case,&nbsp;it&nbsp;is&nbsp;detected&nbsp;as&nbsp;FAIL.</tt></dd></dl>
+
+<dl><dt><a name="Node-sendSYN"><strong>sendSYN</strong></a>(self, sendTo)</dt><dd><tt>sends&nbsp;SYN.&nbsp;Starts&nbsp;gossiping<br>
+&nbsp;<br>
+Note:&nbsp;If&nbsp;only&nbsp;one&nbsp;node&nbsp;is&nbsp;present&nbsp;in&nbsp;gDigestList</tt></dd></dl>
+
+<dl><dt><a name="Node-startGossip"><strong>startGossip</strong></a>(self, gossip_protocol)</dt></dl>
+
+<dl><dt><a name="Node-updateAliveStatus"><strong>updateAliveStatus</strong></a>(self, ip, clientIp)</dt></dl>
+
+<dl><dt><a name="Node-updateHearbeat"><strong>updateHearbeat</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="Node-updateTimestamp"><strong>updateTimestamp</strong></a>(self, ip)</dt></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>monitor_client</strong> = &lt;ServerProxy for localhost:8000/RPC2&gt;<br>
+<strong>provider_node</strong> = &lt;ServerProxy for localhost:9000/RPC2&gt;</td></tr></table>
+</body></html>
