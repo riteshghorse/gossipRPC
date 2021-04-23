@@ -1,5 +1,3 @@
-# done
-
 import os
 from rpc import XMLRPCGossipManager
 from configuration_manager import ConfigurationManager
@@ -9,12 +7,10 @@ import threading
 import argparse
 import random
 import sched
-# import time
 import json
 import threading
 import Constants
 from random_open_port import random_port
-from RepeatedTimer import RepeatedTimer
 import xmlrpc.client
 from utils import *
 
@@ -22,7 +18,7 @@ monitor_client =  xmlrpc.client.ServerProxy('http://' + Constants.MONITOR_ADDRES
 provider_node =  xmlrpc.client.ServerProxy('http://' + Constants.PROVIDER_ADDRESS + '/RPC2')
 
 scheduler = sched.scheduler(time.time, time.sleep)
-# proxy = xmlrpc.client.ServerProxy("http://localhost:8000/") 
+# gossip_version = 
 
 def start_gossip_node(gossip_node):
     XMLRPCGossipManager.start_server(gossip_node)
@@ -33,6 +29,7 @@ def stop_gossip_node():
 
 
 def get_arguments():
+    global gossip_version
     parser = argparse.ArgumentParser()
     parser.add_argument('--config',
                         required=False,
@@ -41,11 +38,17 @@ def get_arguments():
                         help='Location to configuration file.',
                         type=str)
 
+    # parser.add_argument('--version',
+    #                     required=False,
+    #                     action='store',
+    #                     dest='version',
+    #                     help='Type of Gossip Protocol',
+    #                     type=str)
 
 
     results = parser.parse_args()
     configuration_file = results.config
-
+    # gossip_version = results.version
     # return configuration_file, bootstrap_server, server_id, no_hash
     return configuration_file
 
@@ -58,11 +61,12 @@ def stabilize_call(node):
 
 def scheduleGossip(node):
     # print('\nscheduling gossip')
-    # node.startGossip(Constants.RANDOM_GOSSIP)
+    node.startGossip(Constants.RANDOM_GOSSIP)
+    node.gossip_version = Constants.RANDOM
     # node.startGossip(Constants.RR_GOSSIP)
-    node.startGossip(Constants.BRR_GOSSIP)
+    # node.startGossip(Constants.BRR_GOSSIP)
     # node.startGossip(Constants.SCRR_GOSSIP)
-    node.gossip_version = Constants.ROUND_ROBIN
+    # node.gossip_version = Constants.ROUND_ROBIN
     # node.gossip_protocol = Constants.SCRR_GOSSIP
     
     # send end point state map to the monitoring node only when
@@ -79,8 +83,6 @@ def scheduleGossip(node):
                 flag_fault = True
 
                 node.fault_vector[k] = 1
-                # print(node.fault_vector)    
-                # monitor_client.
     
     if flag_fault:
         monitor_client.updateSuspectMatrix(node.ip, node.fault_vector, node.heart_beat_state["generation"])
@@ -120,19 +122,9 @@ if __name__ == "__main__":
     scheduler.enter(Constants.WAIT_SECONDS_HEARTBEAT, Constants.HEARTBEAT_PRIO, stabilize_call, (node,))
     stabilization_thread = threading.Thread(target=scheduler.run, args=(True,))
     stabilization_thread.start()
-    #update heartbeat every 1 sec
-    # happens internally
-    # node.updateHearbeat()
-    # rt = RepeatedTimer(1, node.updateHearbeat())
-    # threading.Timer(Constants.WAIT_SECONDS_HEARTBEAT, node.updateHearbeat()).start()
+
     while True:
-        # time.sleep(5)
-        # node.sendSYN()
-
-        # while flag:
-
-        # t = threading.Timer(Constants.WAIT_SECONDS_HEARTBEAT, node.updateHearbeat()).start()
-
+        
         console_input = input("\n1.connect\n2.consensus")
         
         if console_input.strip() == "stop":
@@ -142,15 +134,9 @@ if __name__ == "__main__":
 
         if console_input.strip() == "connect":
             flag = 1
-            # pass
-            #contact_ip = input("Enter ip/host of node to contact")
-            #contact_port = input("Enter port of node to contact")
-
-            #node.contact_node(contact_ip, contact_port)
             inp = str(ConfigurationManager.get_configuration().get_seed_host())+':'+str(ConfigurationManager.get_configuration().get_seed_port())
             node.sendSYN(inp)
             scheduler.enter(Constants.WAIT_SECONDS_GOSSIP, Constants.GOSSIP_PRIO, scheduleGossip, (node,))
-            # node.sendACK2()
 
         if console_input.strip() == "consensus":
             start_measuring(node)

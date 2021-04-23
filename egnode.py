@@ -1,18 +1,21 @@
-# done
 
+import copy
+import datetime
+import math
+import threading
 import xmlrpc.client
+from random import sample
+
+import Constants
+from configuration_manager import ConfigurationManager
 from SynGossipDigest import *
 from SynVerbHandler import *
-import Constants
+from AckVerbHandler import *
+from Ack2VerbHandler import *
 from utils import getCurrentGeneration, getTimeStamp
-from configuration_manager import ConfigurationManager
-import datetime
-import threading
-import copy
-from random import sample
-import math
 
 
+monitor 
 monitor_client =  xmlrpc.client.ServerProxy('http://' + Constants.MONITOR_ADDRESS + '/RPC2', allow_none=True)
 provider_node =  xmlrpc.client.ServerProxy('http://' + Constants.PROVIDER_ADDRESS + '/RPC2', allow_none=True)
 
@@ -26,8 +29,7 @@ class Node(object):
         self.endpoint_state_map = {self.app_state["IP_Port"]: {'heartBeat': self.heart_beat_state, 'appState':self.app_state, 'last_updated_time': getTimeStamp()}}
         self.gDigestList = {self.app_state['IP_Port'] : [self.app_state['App_version'], self.heart_beat_state['generation'], self.heart_beat_state['heartBeatValue']]} 
         #{IP_Port:{'heartBeat':[version, generation], 'appState':[], 'last_msg_received': time}}
-        # print(self.gDigestList)
-        
+                
         self.fault_vector = {self.ip:0}  
         self.live_nodes = list(self.ip)
         self.dead_nodes = list()
@@ -62,22 +64,18 @@ class Node(object):
         except Exception as e:
             pass
         
-        # sendAck2()
-
 
     def acceptSyn(self,synDigest, clientIp):
         self.message_count += 1
         variable = SynVerbHandler(self)
         deltaGDigest, deltaEpStateMap = variable.handleSync(synDigest)
         print('\nSyn handler completed')
-        # print('DIgest contains: ', (deltaGDigest, self.endpoint_state_map))
         try:
             client =  xmlrpc.client.ServerProxy('http://' + clientIp + '/RPC2')
             client.acceptAck(deltaGDigest, deltaEpStateMap, self.app_state["IP_Port"])
             print('\nACK sent')
         except Exception as e:
             pass
-        #TODO: timer for ack expiry
 
     def updateTimestamp(self, ip):
         try:
@@ -88,61 +86,38 @@ class Node(object):
         # if ip in self.fault_vector and self.fault_vector[ip] == 1:
         self.fault_vector[ip] = 0
         
-        # print("++++++++++++++", ip)
         try:
-            # print('sending ====')
             print(self.ip, self.fault_vector)
             print((self.ip, self.fault_vector, self.getGeneration(ip)))
             monitor_client.updateSuspectMatrix(self.ip, self.fault_vector, self.getGeneration(ip))
         except Exception as e:
             print(e)
             pass
-        # print('block completed')
 
     def updateAliveStatus(self, ip, clientIp):
-        # print("-----------------------Within updateAlive status ", self.fault_vector[ip], ip, clientIp)
         if(self.gossip_protocol == Constants.SCRR_GOSSIP):
-            
             if(ip not in self.fault_vector or ((self.fault_vector[ip]!=1) or (self.fault_vector[ip]==1 and ip==clientIp))):
-                # print('block 1')
                 self.updateTimestamp(ip)
         else:
             print('block 2')
             self.updateTimestamp(ip)
 
+
     def acceptAck(self, deltaGDigest, deltaEpStateMap, clientIp):
         print('\nin accept ack')
         self.message_count += 1
         epStateMap = {}
-        # print((deltaGDigest, deltaEpStateMap, clientIp))
 
+        ackHandler = AckVerbHandler(self)
         # retrieve meta-app states of requested IPs
-        for ip in deltaGDigest:
-            if ip in self.endpoint_state_map:
-                epStateMap[ip] = self.endpoint_state_map[ip]
-                
-        #update my own meta-apps in endpoint
+        epStateMap = ackHandler.setEpStateMap(deltaGDigest)
+        
 
-        for ip, epState in deltaEpStateMap.items():
-            #update by comparing which has the latest heartbeat
-            if ip in self.endpoint_state_map:
-                if deltaEpStateMap[ip]["heartBeat"]["heartBeatValue"] > self.endpoint_state_map[ip]["heartBeat"]["heartBeatValue"]: 
-                    self.endpoint_state_map[ip] = deltaEpStateMap[ip]
-                    #gDIgest list will be forwarded in next rounds of gossip hence it has to be updated
-                    self.gDigestList[ip] = [self.endpoint_state_map[ip]['appState']['App_version'], self.endpoint_state_map[ip]['heartBeat']['generation'], self.endpoint_state_map[ip]['heartBeat']['heartBeatValue']]
-                    if self.gossip_version == Constants.ROUND_ROBIN:
-                        # self.endpoint_state_map[ip]['last_updated_time'] = getTimeStamp()
-                        self.updateAliveStatus(ip, clientIp)
-            else:
-                #since i don't know this ip, put entire epState for this ip
-                self.endpoint_state_map[ip] = deltaEpStateMap[ip]
-                #gDIgest list will be forwarded in next rounds of gossip hence it has to be updated
-                self.gDigestList[ip] = [self.endpoint_state_map[ip]['appState']['App_version'], self.endpoint_state_map[ip]['heartBeat']['generation'], self.endpoint_state_map[ip]['heartBeat']['heartBeatValue']]
-            
-        # print('updated epstate')
+        #update my own meta-apps in endpoint
+        ackHandler.updateEpStateMap(deltaEpStateMap, clientIp)
+         
         # updating timestamp for clientIp
         if clientIp in self.endpoint_state_map:
-            # self.endpoint_state_map[clientIp]['last_updated_time'] = getTimeStamp()
             self.updateAliveStatus(clientIp, clientIp)
 
         print("\nACK handled... sending ack2")
@@ -151,8 +126,7 @@ class Node(object):
             self.handshake_nodes.append(clientIp)
 
         if not self.isInLivenodes(clientIp):
-            self.live_nodes = list(self.endpoint_state_map.keys())
-            
+            self.live_nodes = list(self.endpoint_state_map.keys())  
         
         try:
             client =  xmlrpc.client.ServerProxy('http://' + clientIp + '/RPC2')
@@ -162,30 +136,13 @@ class Node(object):
             pass
 
 
-
-
     def acceptAck2(self, deltaEpStateMap, clientIp):
         print('\n in acceptAck 2')
         self.message_count += 1
 
-        for ip, epState in deltaEpStateMap.items():
-            #update by comparing which has the latest heartbeat
-            if ip == self.ip:
-                continue
-            if ip in self.endpoint_state_map:
-                if deltaEpStateMap[ip]["heartBeat"]["heartBeatValue"] > self.endpoint_state_map[ip]["heartBeat"]["heartBeatValue"]: 
-                    self.endpoint_state_map[ip] = deltaEpStateMap[ip]
-                    #gDIgest list will be forwarded in next rounds of gossip hence it has to be updated
-                    self.gDigestList[ip] = [self.endpoint_state_map[ip]['appState']['App_version'], self.endpoint_state_map[ip]['heartBeat']['generation'], self.endpoint_state_map[ip]['heartBeat']['heartBeatValue']]
-                    if self.gossip_version == Constants.ROUND_ROBIN:
-                        self.updateAliveStatus(ip, clientIp)
-            else:
-                #since i don't know this ip, put entire epState for this ip
-                self.endpoint_state_map[ip] = deltaEpStateMap[ip]
-                #gDIgest list will be forwarded in next rounds of gossip hence it has to be updated
-                self.gDigestList[ip] = [self.endpoint_state_map[ip]['appState']['App_version'], self.endpoint_state_map[ip]['heartBeat']['generation'], self.endpoint_state_map[ip]['heartBeat']['heartBeatValue']]
-            
-            
+        ack2Handler = Ack2Handler(self)
+        ack2Handler.updateEpStateMap(deltaEpStateMap, clientIp)
+        
         if not self.isInHandshake(clientIp):
             self.handshake_nodes.append(clientIp)
             
@@ -193,10 +150,10 @@ class Node(object):
             self.live_nodes = list(self.endpoint_state_map.keys())
 
         # updating timestamp of clientIp
-        # self.endpoint_state_map[clientIp]['last_updated_time'] = getTimeStamp()
-        
         self.updateAliveStatus(clientIp, clientIp)
         print('\n ACK2 processed... complete handshake')
+
+
 
     def getGeneration(self, clientIp):
         if clientIp in self.endpoint_state_map:
@@ -220,11 +177,10 @@ class Node(object):
         digestList = copy.deepcopy(self.gDigestList)
 
         digestList.pop(self.ip, None)
-        from gossip_server import scheduler, scheduleGossip
+        from gossip_server import scheduleGossip, scheduler
 
         keyList = list(digestList.keys() - self.ip)
         random_numbers = sample(range(0, len(keyList)), 1)
-        # print('-------------------------------------------------')
         self.message_count += 1
         print(keyList, random_numbers)
         for i in random_numbers:
@@ -251,7 +207,7 @@ class Node(object):
         print(self.handshake_nodes, self.fault_vector)
         print('-------------')
 
-        from gossip_server import scheduler, scheduleGossip
+        from gossip_server import scheduleGossip, scheduler
 
         print('In round: '+str(self.rr_index))
         keyList = list(self.rr_list.keys() - self.ip)
@@ -274,15 +230,12 @@ class Node(object):
         
         if len(self.rr_list)==0 or self.rr_round-1 > math.log2(len(self.rr_list)):
             self.rr_list = provider_node.getMapping()
-            # self.rr_list.pop(self.ip, None)
             self.rr_index = self.rr_list.index(self.ip) + 1
             self.rr_round = 0
 
-        from gossip_server import scheduler, scheduleGossip
+        from gossip_server import scheduleGossip, scheduler
 
         print('In round: '+str(self.rr_round))
-        # keyList = list(self.rr_list.keys())
-        # print('my list-->', keyList)
         self.message_count += 1
         ip = self.rr_list[(self.rr_index)%len(self.rr_list)]
         print("ip i'm sending--> ", ip)
@@ -313,7 +266,7 @@ class Node(object):
         print(self.endpoint_state_map, self.fault_vector)
         print('-------------')
 
-        from gossip_server import scheduler, scheduleGossip
+        from gossip_server import scheduleGossip, scheduler
         self.rr_round = (self.rr_index - self.sc_index + len(self.rr_list))%len(self.rr_list)
         print('In round: '+str(self.rr_round))
         
@@ -348,8 +301,27 @@ class Node(object):
             self.initiateSCRRGossip()
 
     def receiveGossip(self, digestList, clientIp):
+        """
+        Authors: Ritesh G, Shreyas M
+        :param digestList:  gossip digest list received from clientIP
+        :param clientIp:    IP of sender node
         
-        #TODO: add application version in later stage as well for comparison
+        
+        RANDOM:             Add the unknown IPs to its own digest list. Update the EndPoint State Map
+                            for the IPs which are already in its EndPoint State Map. Update the last_updated_time
+                            for the clientIp.
+
+        ROUND_ROBIN:        Perform the same operation as that of RANDOM. In addition to this update the 
+                            last_updated_time for the IPs received in digestList which are already in its
+                            EndPoint State Map for that round.
+
+        BINARY_ROUND_ROBIN: Same as ROUND_ROBIN.
+
+        SEQUENCE_CHECK:     Same as ROUND_ROBIN. In addition to this, it checks if the it missed any gossip from 
+                            a IP in previous round. In this case, it is detected as FAIL.
+
+        """
+
         print('gossip received from--\n' + clientIp)
         # print('my digest', self.gDigestList)
         if self.gossip_protocol == Constants.SCRR_GOSSIP:
