@@ -61,13 +61,13 @@ def stabilize_call(node):
 
 def scheduleGossip(node):
     # print('\nscheduling gossip')
-    node.startGossip(Constants.RANDOM_GOSSIP)
-    node.gossip_version = Constants.RANDOM
+    # node.startGossip(Constants.RANDOM_GOSSIP)
+    # node.gossip_version = Constants.RANDOM
     # node.startGossip(Constants.RR_GOSSIP)
     # node.startGossip(Constants.BRR_GOSSIP)
-    # node.startGossip(Constants.SCRR_GOSSIP)
+    node.startGossip(Constants.SCRR_GOSSIP)
     # node.gossip_version = Constants.ROUND_ROBIN
-    # node.gossip_protocol = Constants.SCRR_GOSSIP
+    node.gossip_protocol = Constants.SCRR_GOSSIP
     
     # send end point state map to the monitoring node only when
     # it has done handshake with all live  nodes
