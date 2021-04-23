@@ -15,7 +15,7 @@ from Ack2VerbHandler import *
 from utils import getCurrentGeneration, getTimeStamp
 
 
-monitor 
+ 
 monitor_client =  xmlrpc.client.ServerProxy('http://' + Constants.MONITOR_ADDRESS + '/RPC2', allow_none=True)
 provider_node =  xmlrpc.client.ServerProxy('http://' + Constants.PROVIDER_ADDRESS + '/RPC2', allow_none=True)
 

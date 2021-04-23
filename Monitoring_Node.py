@@ -70,6 +70,14 @@ class MonitoringNode:
         print('in consensus', ip)
         self.doConsensus()
 
+    def getFaultVector(self):
+        return self.global_fault_vector
+
+    def showAliveDeadNode(self):
+        live_nodes = [self.Index_to_IP[ip] for ip,status in enumerate(self.global_fault_vector) if status!=1]
+        dead_nodes = [self.Index_to_IP[ip] for ip,status in enumerate(self.global_fault_vector) if status==1]
+        # return live_nodes
+        return {'live': live_nodes, 'dead': dead_nodes}
 
     def sendEpStateMap(self, ip, epStateMap, msg_count):
         self.receiveStateMap(ip, epStateMap, msg_count)
