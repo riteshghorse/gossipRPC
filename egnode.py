@@ -12,7 +12,7 @@ from SynGossipDigest import *
 from SynVerbHandler import *
 from AckVerbHandler import *
 from Ack2VerbHandler import *
-from utils import getCurrentGeneration, getTimeStamp
+from utils import *
 
 
  
@@ -140,7 +140,7 @@ class Node(object):
         print('\n in acceptAck 2')
         self.message_count += 1
 
-        ack2Handler = Ack2Handler(self)
+        ack2Handler = Ack2VerbHandler(self)
         ack2Handler.updateEpStateMap(deltaEpStateMap, clientIp)
         
         if not self.isInHandshake(clientIp):
