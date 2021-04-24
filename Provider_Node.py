@@ -29,7 +29,7 @@ class ProviderNode:
     
 
 if __name__ == "__main__":
-
+    import socket
 
     configuration_file = get_arguments()
    
