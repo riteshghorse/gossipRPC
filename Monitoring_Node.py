@@ -24,7 +24,6 @@ class MonitoringNode:
         self.heartbeatTime = {}
 
     def setheartbeatTime(self, ip):
-        # print(ip, 'updating hb\n')
         self.heartbeatTime[ip] = getTimeStamp()
 
     def setMapping(self,ip):
@@ -37,12 +36,9 @@ class MonitoringNode:
         for row in self.suspect_matrix:
             row.extend([0])
 
-        # print(self.suspect_matrix)
         if(len(self.suspect_matrix[0]) > 1):
-            # self.suspect_matrix.append([0 for i in range(len(self.suspect_matrix[0]))])
             self.suspect_matrix.append(list(self.global_fault_vector))
 
-        # print('\n') 
         self.node_index += 1
 
     def getMapping(self):
@@ -50,11 +46,9 @@ class MonitoringNode:
 
 
     def updateSuspectMatrix(self, ip, fault_vector, generation):
-        
         try:
             if self.global_fault_vector[self.IP_to_Node_Index[ip]] == 1:
                 self.global_fault_vector[self.IP_to_Node_Index[ip]] = 0
-            index = self.getMapping()[ip]
         except Exception as e:
             pass
         for k,v in fault_vector.items():
@@ -67,7 +61,6 @@ class MonitoringNode:
             
             self.suspect_matrix[self.IP_to_Node_Index[ip]][self.IP_to_Node_Index[k]] = v 
             
-        print('in consensus', ip)
         self.doConsensus()
 
     def getFaultVector(self):
@@ -94,6 +87,7 @@ class MonitoringNode:
         return self.suspect_matrix
 
     def doConsensus(self):
+        print('---------------------------------------')
         for j in range(len(self.suspect_matrix[0])):
             state = 1
             # flag = 1
@@ -101,7 +95,6 @@ class MonitoringNode:
                 if i != j and ((self.global_fault_vector[i]) != 1):
                     # print('first if')
                     try:
-                        print('/// time: ', self.heartbeatTime[self.Index_to_IP[i]])
                         if getDiffInSeconds(self.heartbeatTime[self.Index_to_IP[i]]) < Constants.WAIT_SECONDS_FAIL:
                             state &= self.suspect_matrix[i][j]
                     except Exception as e:
@@ -116,12 +109,11 @@ class MonitoringNode:
                     self.ip_generation[j] = self.global_state_map[self.Index_to_IP[j]][self.Index_to_IP[j]]['heartBeat']['generation']
                 except Exception as e:
                     pass
+        print('---------------------------------------')
 
-        print('end consensus')
 
     def doConsensusCheck(self):
         res = True
-        # keyList = self.global_state_map.keys()
         currentEpStateMap =  copy.deepcopy(self.global_state_map)
         for k,v in currentEpStateMap.items() :
             for k1, v1 in v.items():
@@ -129,7 +121,6 @@ class MonitoringNode:
                 temp['generation'] = v1['heartBeat']['generation']
                 temp['App_status'] = v1['appState']['App_status']
                 temp['App_version'] = v1['appState']['App_version']
-                # print(self.IP_to_Node_Index)
                 temp['fault_vector'] = self.suspect_matrix[self.IP_to_Node_Index[k]]
                 self.consensusMap[k][k1] = temp
 
@@ -146,7 +137,7 @@ class MonitoringNode:
 if __name__ == "__main__":
 
 
-    configuration_file = get_arguments()
+    configuration_file,_ = get_arguments()
    
 
     os.environ["GOSSIP_CONFIG"] = configuration_file

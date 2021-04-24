@@ -10,6 +10,7 @@ import sched
 import json
 import threading
 import Constants
+import copy
 from random_open_port import random_port
 import xmlrpc.client
 from utils import *
@@ -29,7 +30,7 @@ def stop_gossip_node():
 
 
 def get_arguments():
-    global gossip_version
+    
     parser = argparse.ArgumentParser()
     parser.add_argument('--config',
                         required=False,
@@ -38,19 +39,19 @@ def get_arguments():
                         help='Location to configuration file.',
                         type=str)
 
-    # parser.add_argument('--version',
-    #                     required=False,
-    #                     action='store',
-    #                     dest='version',
-    #                     help='Type of Gossip Protocol',
-    #                     type=str)
+    parser.add_argument('--version',
+                        required=False,
+                        action='store',
+                        dest='version',
+                        help='Type of Gossip Protocol',
+                        type=str)
 
 
     results = parser.parse_args()
     configuration_file = results.config
-    # gossip_version = results.version
+    gossip_protocol = results.version
     # return configuration_file, bootstrap_server, server_id, no_hash
-    return configuration_file
+    return (configuration_file,gossip_protocol)
 
 def stabilize_call(node):
     node.updateHearbeat()
@@ -61,28 +62,35 @@ def stabilize_call(node):
 
 def scheduleGossip(node):
     # print('\nscheduling gossip')
-    node.startGossip(Constants.RANDOM_GOSSIP)
-    node.gossip_version = Constants.RANDOM
+    # node.startGossip(Constants.RANDOM_GOSSIP)
+    # node.gossip_version = Constants.RANDOM
     # node.startGossip(Constants.RR_GOSSIP)
     # node.startGossip(Constants.BRR_GOSSIP)
     # node.startGossip(Constants.SCRR_GOSSIP)
     # node.gossip_version = Constants.ROUND_ROBIN
     # node.gossip_protocol = Constants.SCRR_GOSSIP
-    
+    node.startGossip(node.gossip_protocol)
     # send end point state map to the monitoring node only when
     # it has done handshake with all live  nodes
     if len(node.live_nodes) == len(node.endpoint_state_map):
         monitor_client.sendEpStateMap(node.ip, node.endpoint_state_map, node.message_count)
 
     flag_fault = False
-    for k,v in node.endpoint_state_map.items():
+    localStateMap = copy.deepcopy(node.endpoint_state_map)
+    for k,v in localStateMap.items():
         if k != node.ip:
             deltatime = getDiffInSeconds(v['last_updated_time'])
-            # print('**---++++++ diff:', deltatime)
             if(deltatime >= Constants.WAIT_SECONDS_FAIL):
                 flag_fault = True
 
                 node.fault_vector[k] = 1
+
+                if(deltatime >= Constants.WAIT_SECONDS_CLEAN):
+                    node.endpoint_state_map.pop(k)
+                    node.gDigestList.pop(k)
+                    node.live_nodes.remove(k)
+                    node.handshake_nodes.remove(k)
+                    print('Clean up done for: ', k)
     
     if flag_fault:
         monitor_client.updateSuspectMatrix(node.ip, node.fault_vector, node.heart_beat_state["generation"])
@@ -93,7 +101,7 @@ def scheduleGossip(node):
 if __name__ == "__main__":
 
     # configuration_file, bootstrap_server, server_id, no_hash = get_arguments()
-    configuration_file = get_arguments()
+    configuration_file, _ = get_arguments()
     from egnode import Node
     if configuration_file == None:
         server_ip = "localhost"
@@ -116,7 +124,12 @@ if __name__ == "__main__":
     
     # register this node to monitoring node
     monitor_client.setMapping(str(server_ip)+':'+str(server_port))
-    provider_node.setMapping(str(server_ip)+':'+str(server_port))
+    node.gossip_protocol = provider_node.setMapping(str(server_ip)+':'+str(server_port))
+    if(node.gossip_protocol == Constants.RANDOM_GOSSIP):
+        node.gossip_version = Constants.RANDOM
+    else:
+        node.gossip_version = Constants.ROUND_ROBIN
+    
     monitor_client.sendEpStateMap(node.ip, node.endpoint_state_map, node.message_count)
     flag = 0
     scheduler.enter(Constants.WAIT_SECONDS_HEARTBEAT, Constants.HEARTBEAT_PRIO, stabilize_call, (node,))

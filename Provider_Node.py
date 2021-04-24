@@ -7,20 +7,36 @@ import time
 import copy
 from utils import *
 import Constants
+import socket
 
 class ProviderNode:
     def __init__(self):
         self.node_index = 0
         self.IP_to_Node_Index = {}
         self.Index_to_IP = {}
+        self.gossip_protocol = ""
 
     def setMapping(self,ip):
+        def typeOfGossip(gossip_protocol):
+            gossip_protocol = gossip_protocol.upper()
+            if(gossip_protocol == "RANDOM"):
+                return Constants.RANDOM_GOSSIP
+            elif gossip_protocol == "RR":
+                return Constants.RR_GOSSIP
+            elif gossip_protocol == "BRR":
+                return Constants.BRR_GOSSIP
+            elif gossip_protocol == "SCRR":
+                return Constants.SCRR_GOSSIP
+            else:
+                return Constants.RANDOM_GOSSIP
+
         if ip in self.IP_to_Node_Index:
             return
         
         self.IP_to_Node_Index[ip] = self.node_index
         self.Index_to_IP[self.node_index] = ip
         self.node_index += 1
+        return typeOfGossip(self.gossip_protocol)
 
     def getMapping(self):
         return list(self.IP_to_Node_Index.keys())
@@ -31,7 +47,7 @@ class ProviderNode:
 if __name__ == "__main__":
 
 
-    configuration_file = get_arguments()
+    configuration_file, gossip_protocol = get_arguments()
    
 
     os.environ["GOSSIP_CONFIG"] = configuration_file
@@ -42,7 +58,8 @@ if __name__ == "__main__":
     
     
     node = ProviderNode()
+    node.gossip_protocol = gossip_protocol
     start_gossip_node(node)
-    print('Rider-Provider up and running')
+    print("----------Provider Node---------")
     while 1:
         pass
