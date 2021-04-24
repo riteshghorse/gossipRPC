@@ -61,13 +61,13 @@ def stabilize_call(node):
 
 def scheduleGossip(node):
     # print('\nscheduling gossip')
-    node.startGossip(Constants.RANDOM_GOSSIP)
-    node.gossip_version = Constants.RANDOM
+    # node.startGossip(Constants.RANDOM_GOSSIP)
+    # node.gossip_version = Constants.RANDOM
     # node.startGossip(Constants.RR_GOSSIP)
     # node.startGossip(Constants.BRR_GOSSIP)
-    # node.startGossip(Constants.SCRR_GOSSIP)
+    node.startGossip(Constants.SCRR_GOSSIP)
     # node.gossip_version = Constants.ROUND_ROBIN
-    # node.gossip_protocol = Constants.SCRR_GOSSIP
+    node.gossip_protocol = Constants.SCRR_GOSSIP
     
     # send end point state map to the monitoring node only when
     # it has done handshake with all live  nodes
@@ -95,10 +95,11 @@ if __name__ == "__main__":
     # configuration_file, bootstrap_server, server_id, no_hash = get_arguments()
     configuration_file = get_arguments()
     from egnode import Node
+    import socket
     if configuration_file == None:
-        server_ip = "localhost"
-        server_port = random_port()
-        data = {"host": server_ip, "port": server_port, "seed_host": 'localhost', "seed_port": 5001}
+        server_ip =  socket.gethostbyname(socket.gethostname()) #"localhost"
+        server_port = 5000
+        data = {"host": server_ip, "port": server_port, "seed_host": 'node1', "seed_port": 5000}
         with open('config_'+str(server_port), 'w') as outfile:
             json.dump(data, outfile)
         os.environ["GOSSIP_CONFIG"] = 'config_'+str(server_port)
@@ -106,7 +107,7 @@ if __name__ == "__main__":
         os.environ["GOSSIP_CONFIG"] = configuration_file
         ConfigurationManager.reset_configuration()
 
-        server_ip = ConfigurationManager.get_configuration().get_gossip_host()
+        server_ip =  socket.gethostbyname(socket.gethostname())#ConfigurationManager.get_configuration().get_gossip_host()
         server_port = ConfigurationManager.get_configuration().get_gossip_port()
     
     server_id = random.randint(1, 1000)
