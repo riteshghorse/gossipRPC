@@ -66,7 +66,7 @@ def scheduleGossip(node):
     # node.gossip_version = Constants.RANDOM
     # node.startGossip(Constants.RR_GOSSIP)
     # node.startGossip(Constants.BRR_GOSSIP)
-    node.startGossip(Constants.SCRR_GOSSIP)
+    #node.startGossip(Constants.SCRR_GOSSIP)
     # node.gossip_version = Constants.ROUND_ROBIN
     # node.gossip_protocol = Constants.SCRR_GOSSIP
     node.startGossip(node.gossip_protocol)
