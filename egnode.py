@@ -88,10 +88,8 @@ class Node(object):
         
         try:
             print(self.ip, self.fault_vector)
-            print((self.ip, self.fault_vector, self.getGeneration(ip)))
             monitor_client.updateSuspectMatrix(self.ip, self.fault_vector, self.getGeneration(ip))
         except Exception as e:
-            print(e)
             pass
 
     def updateAliveStatus(self, ip, clientIp):
@@ -99,12 +97,11 @@ class Node(object):
             if(ip not in self.fault_vector or ((self.fault_vector[ip]!=1) or (self.fault_vector[ip]==1 and ip==clientIp))):
                 self.updateTimestamp(ip)
         else:
-            print('block 2')
             self.updateTimestamp(ip)
 
 
     def acceptAck(self, deltaGDigest, deltaEpStateMap, clientIp):
-        print('\nin accept ack')
+        print('\nIn Accept ACK')
         self.message_count += 1
         epStateMap = {}
 
@@ -120,7 +117,7 @@ class Node(object):
         if clientIp in self.endpoint_state_map:
             self.updateAliveStatus(clientIp, clientIp)
 
-        print("\nACK handled... sending ack2")
+        print("\nACK handled... sending ACK2")
         
         if not self.isInHandshake(clientIp):
             self.handshake_nodes.append(clientIp)
@@ -137,7 +134,7 @@ class Node(object):
 
 
     def acceptAck2(self, deltaEpStateMap, clientIp):
-        print('\n in acceptAck 2')
+        print('\n in Accept Ack 2')
         self.message_count += 1
 
         ack2Handler = Ack2VerbHandler(self)
@@ -182,7 +179,6 @@ class Node(object):
         keyList = list(digestList.keys() - self.ip)
         random_numbers = sample(range(0, len(keyList)), 1)
         self.message_count += 1
-        print(keyList, random_numbers)
         for i in random_numbers:
         
             ip = keyList[i]
@@ -203,28 +199,28 @@ class Node(object):
             self.rr_list = copy.deepcopy(self.gDigestList)
             self.rr_list.pop(self.ip, None)
 
-        print('-------------')
-        print(self.handshake_nodes, self.fault_vector)
-        print('-------------')
+        print('------ Starting Round Robin Rounds -------')
+        
 
         from gossip_server import scheduleGossip, scheduler
 
-        print('In round: '+str(self.rr_index))
+        #print('In round: '+str(self.rr_index))
         keyList = list(self.rr_list.keys() - self.ip)
 
         self.message_count += 1
         ip = keyList[self.rr_index]
         if self.isInHandshake(ip):
             try:
+                print("I'm gossiping to--> ", ip)
                 client =  xmlrpc.client.ServerProxy('http://' + ip + '/RPC2')
                 client.receiveGossip(self.gDigestList, self.ip)
             except Exception as e:
                 pass
         else:
-            print('--------------------> sending syn'+ip)
+            print('------> Initiate Handshake for: '+ip)
             self.sendSYN(ip)
         self.rr_index =  (self.rr_index + 1) % len(self.rr_list)
-        print('round robin ' + str(self.rr_index) + 'done')
+        #print('round robin ' + str(self.rr_index) + 'done')
 
     def initiateBinaryRRGossip(self):     
         
@@ -232,27 +228,29 @@ class Node(object):
             self.rr_list = provider_node.getMapping()
             self.rr_index = self.rr_list.index(self.ip) + 1
             self.rr_round = 0
+            print('------ Starting Binary Round Robin Rounds -------')
 
         from gossip_server import scheduleGossip, scheduler
 
-        print('In round: '+str(self.rr_round))
+        #print('In round: '+str(self.rr_round))
         self.message_count += 1
         ip = self.rr_list[(self.rr_index)%len(self.rr_list)]
-        print("ip i'm sending--> ", ip)
+        
         if self.isInHandshake(ip):
             try:
+                print("I'm gossiping to--> ", ip)
                 client =  xmlrpc.client.ServerProxy('http://' + ip + '/RPC2')
                 client.receiveGossip(self.gDigestList, self.ip)
             except Exception as e:
                 print(e)
                 pass
         else:
-            print('--------------------> sending syn'+ip)
+            print('------> Initiate Handshake for: '+ip)
             self.sendSYN(ip)
         self.rr_index =  (self.rr_index + 2**(self.rr_round)) % len(self.rr_list)
         self.rr_round += 1
-        print(self.rr_index)
-        print('round robin ' + str(self.rr_round) + 'done')
+        #print(self.rr_index)
+        #print('round robin ' + str(self.rr_round) + 'done')
 
 
     def initiateSCRRGossip(self):
@@ -262,28 +260,25 @@ class Node(object):
             self.sc_index = self.rr_list.index(self.ip)
             self.rr_index = (self.sc_index + 1) % len(self.rr_list)
 
-        print('-------------')
-        print(self.endpoint_state_map, self.fault_vector)
-        print('-------------')
-
         from gossip_server import scheduleGossip, scheduler
         self.rr_round = (self.rr_index - self.sc_index + len(self.rr_list))%len(self.rr_list)
-        print('In round: '+str(self.rr_round))
+        #print('In round: '+str(self.rr_round))
         
         self.message_count += 1
         ip = self.rr_list[self.rr_index]
 
         if self.isInHandshake(ip):
             try:
+                print("I'm gossiping to--> ", ip)
                 client =  xmlrpc.client.ServerProxy('http://' + ip + '/RPC2')
                 client.receiveGossip(self.gDigestList, self.ip)
             except Exception as e:
                 pass
         else:
-            print('--------------------> sending syn'+ip)
+            print('------> Initiate Handshake for: '+ip)
             self.sendSYN(ip)
         self.rr_index =  (self.rr_index + 1) % len(self.rr_list)
-        print('round robin ' + str(self.rr_round) + 'done')
+        #print('round robin ' + str(self.rr_round) + 'done')
 
 
 
@@ -322,15 +317,16 @@ class Node(object):
 
         """
 
-        print('gossip received from--\n' + clientIp)
+        print('++++> Gossip received from--> ' + clientIp)
         # print('my digest', self.gDigestList)
         if self.gossip_protocol == Constants.SCRR_GOSSIP:
             indexOfClient = self.rr_list.index(clientIp)
             lastReceivedIp = self.rr_list[(indexOfClient + 1)%len(self.rr_list)]
-            print("----->", lastReceivedIp)
+            
             if lastReceivedIp != self.ip:
                 if(lastReceivedIp != self.lastReceived['ip']) or \
                     (getDiffInSeconds(self.lastReceived['timestamp']) > Constants.WAIT_SECONDS_FAIL):
+                    print('Gossip message expected from: '+lastReceivedIp + ' in last round. Hence marking as FAIL')
                     self.fault_vector[lastReceivedIp] = 1
                     monitor_client.updateSuspectMatrix(self.ip, self.fault_vector, self.getGeneration(lastReceivedIp))
         
@@ -338,6 +334,7 @@ class Node(object):
             self.lastReceived['timestamp'] = getTimeStamp()
 
         currenttList = copy.deepcopy(self.gDigestList)
+        updatedList = []
         for ip, digest in digestList.items():
             if ip == self.ip:
                 continue
@@ -351,6 +348,7 @@ class Node(object):
                         self.endpoint_state_map[ip]['appState']['App_version'] = digest[0]
                         self.endpoint_state_map[ip]['heartBeat']['generation'] = digest[1]
                         self.endpoint_state_map[ip]['heartBeat']['heartBeatValue'] = digest[2]
+                        updatedList.append(ip)
                     except Exception as e:
                         print('passed the exception')
                         pass            
@@ -358,6 +356,7 @@ class Node(object):
                     currenttList[ip][2] = digest[2]
                     try:
                         self.endpoint_state_map[ip]['heartBeat']['heartBeatValue'] = digest[2]
+                        updatedList.append(ip)
                     except Exception as e:
                         print('passed the exception')
                         pass            
@@ -368,7 +367,9 @@ class Node(object):
             else:
                 currenttList[ip] = digest
                    
-            
+        print('Status updated by: '+self.ip)
+        print('for: ', updatedList)
+        print('as directed by: ', clientIp)    
 
         self.gDigestList = copy.deepcopy(currenttList)
         # updating timestamp for clientIp
