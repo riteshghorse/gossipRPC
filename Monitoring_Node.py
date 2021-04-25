@@ -150,11 +150,16 @@ if __name__ == "__main__":
     node = MonitoringNode()
     start_gossip_node(node)
     
-    
+    import json
     while True:
 
         console_input = input("1. \"stop\" \n2. \"check consensus\" \n 3. \"live node\" \n4. \"global suspect matrix\" \n5. \"fault vector\" \n6. start time"
                               "Enter your input:")
+        
+        if console_input.strip() == "collect":
+            with open('states.json','w') as fp:
+                json.dump(node.global_state_map,fp)
+            break
         
         if console_input.strip() == "stop":
             stop_gossip_node()

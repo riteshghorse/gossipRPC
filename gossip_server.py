@@ -101,6 +101,7 @@ if __name__ == "__main__":
 
     # configuration_file, bootstrap_server, server_id, no_hash = get_arguments()
     configuration_file, _ = get_arguments()
+    import socket
     from egnode import Node
     if configuration_file == None:
         server_ip = "localhost"
@@ -112,8 +113,8 @@ if __name__ == "__main__":
     else:
         os.environ["GOSSIP_CONFIG"] = configuration_file
         ConfigurationManager.reset_configuration()
-
-        server_ip = ConfigurationManager.get_configuration().get_gossip_host()
+        server_ip = socket.gethostbyname(socket.gethostname()) 
+        # server_ip = ConfigurationManager.get_configuration().get_gossip_host()
         server_port = ConfigurationManager.get_configuration().get_gossip_port()
     
     server_id = random.randint(1, 1000)

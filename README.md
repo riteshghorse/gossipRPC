@@ -120,3 +120,16 @@ docker-compose down
 ```
 docker stop $(docker ps --filter status=running -q)
 ```
+
+
+
+
+
+```
+sudo docker exec -it monitor-node /bin/bash
+python Monitoring_Node.py --config config/monitor.json
+```
+
+```
+sudo docker exec -it provider-node /bin/bash
+```
