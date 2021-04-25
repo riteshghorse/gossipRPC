@@ -5,6 +5,7 @@ from configuration_manager import ConfigurationManager
 import os
 import time
 import copy
+import socket
 from utils import *
 import Constants
 
@@ -29,7 +30,7 @@ class ProviderNode:
     
 
 if __name__ == "__main__":
-
+    import socket
 
     configuration_file = get_arguments()
    

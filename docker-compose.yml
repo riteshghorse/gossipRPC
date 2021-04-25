@@ -1,8 +1,73 @@
 version: "3.8"
 
 services:
-  server:
+  monitor-node:
       build:
-        context: ./src
-      container_name: gossip
-      command: ["python", "src/gossip_server.py","--config ./config/config1.json"]
+        context: .
+      container_name: monitor-node
+      stdin_open: true # docker run -i
+      tty: true 
+      command: 
+        - python Monitoring_Node.py
+  
+  provider-node:
+    build:
+      context: .
+    container_name: provider-node
+    stdin_open: true # docker run -i
+    tty: true 
+    command: 
+    - /bin/bash
+
+  node1:
+    build:
+      context: .
+    container_name: node1
+    stdin_open: true # docker run -i
+    tty: true 
+    command: 
+    - /bin/bash
+    # - python gossip_server.py --config ./config/config1.json
+  node2:
+    build:
+      context: .
+    container_name: node2
+    stdin_open: true # docker run -i
+    tty: true 
+    command: 
+    - /bin/bash
+  node3:
+    build:
+      context: .
+    container_name: node3
+    stdin_open: true # docker run -i
+    tty: true 
+    command: 
+    - /bin/bash
+
+  node4:
+    build:
+      context: .
+    container_name: node4
+    stdin_open: true # docker run -i
+    tty: true 
+    command: 
+    - /bin/bash
+
+  node5:
+    build:
+      context: .
+    container_name: node5
+    stdin_open: true # docker run -i
+    tty: true 
+    command: 
+    - /bin/bash
+
+  node6:
+    build:
+      context: .
+    container_name: node6
+    stdin_open: true # docker run -i
+    tty: true 
+    command: 
+    - /bin/bash
