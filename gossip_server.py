@@ -85,10 +85,10 @@ def scheduleGossip(node):
                 node.fault_vector[k] = 1
 
                 if(deltatime >= Constants.WAIT_SECONDS_CLEAN):
-                    node.endpoint_state_map.pop(k)
-                    node.gDigestList.pop(k)
-                    node.live_nodes.remove(k)
-                    node.handshake_nodes.remove(k)
+                    # node.endpoint_state_map.pop(k)
+                    # node.gDigestList.pop(k)
+                    # node.live_nodes.remove(k)
+                    # node.handshake_nodes.remove(k)
                     print('Clean up done for: ', k)
     
     if flag_fault:
@@ -104,9 +104,9 @@ if __name__ == "__main__":
     import socket
     from egnode import Node
     if configuration_file == None:
-        server_ip = "localhost"
+        server_ip = socket.gethostbyname(socket.gethostname()) 
         server_port = random_port()
-        data = {"host": server_ip, "port": server_port, "seed_host": 'localhost', "seed_port": 5001}
+        data = {"host": server_ip, "port": server_port, "seed_host": "node1", "seed_port": 5000}
         with open('config_'+str(server_port), 'w') as outfile:
             json.dump(data, outfile)
         os.environ["GOSSIP_CONFIG"] = 'config_'+str(server_port)

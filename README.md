@@ -132,4 +132,27 @@ python Monitoring_Node.py --config config/monitor.json
 
 ```
 sudo docker exec -it provider-node /bin/bash
+python Provider_Node.py --config config/provider.json --version random
+```
+
+```
+sudo docker exec -u root -it node1 /bin/bash
+python gossip_server.py --config config/config1.json
+
+```
+
+```
+sudo docker exec -u root -it node2 /bin/bash
+python gossip_server.py --config config/config2.json
+```
+
+
+```
+sudo docker exec -u root -it gossiprpc_node_3 /bin/bash
+python gossip_server.py 
+```
+
+```
+sudo docker exec -u root -it gossiprpc_node_4 /bin/bash
+python gossip_server.py 
 ```

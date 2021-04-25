@@ -28,7 +28,9 @@ class MonitoringNode:
 
     def setMapping(self,ip):
         if ip in self.IP_to_Node_Index:
+            self.suspect_matrix[self.IP_to_Node_Index[ip]] = list(self.global_fault_vector)
             return
+
         self.global_fault_vector.extend([0])
         self.IP_to_Node_Index[ip] = self.node_index
         self.Index_to_IP[self.node_index] = ip
