@@ -1,4 +1,3 @@
-from collections import defaultdict
 import Constants
 
 class Ack2VerbHandler(object):
