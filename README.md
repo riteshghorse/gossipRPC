@@ -28,18 +28,26 @@ Note: This step assumes that Monitoring Node is already runnning.
 
 ## Steps for running Docker-Compose
 
+1. ### Build image of the application
+    ```
+    docker build -t gossip <path-to-Dockerfile>
+    ```
 1. ### Spin up the containers
-
-```
-docker-compose up -d --build
-```
+    * When doing it for the first time
+    ```
+    docker-compose up -d --build --scale node=<no of containers to spin apart from seed nodes>
+    ```
+    * For subsequent runs when the image is the same
+    ```
+    docker-compose up -d --scale node=<no of containers to spin apart from seed nodes>
+    ```
 
 2. ### Entering into the container
 
 ```
 sudo docker exec -it <container-name> /bin/bash
 ```
-
+Note:
 3. ### Adding a new container into the network without docker-compose
 
 * Make sure you create an image for the code beforehand
@@ -51,7 +59,7 @@ sudo docker exec -it <container-name> /bin/bash
 * Run the container
 
 ```
-    docker run -it --name <container-name-optional> --network gossiprpc_default gossip
+    docker run -it --name <container-name-optional> --network gossip_network gossip
 ```
 
 ## Running as standalone docker containers
@@ -102,3 +110,13 @@ sudo docker exec -it <container-name> /bin/bash
 
 7.
     * docker rm $(docker ps --filter name=node\* -aq) --> kill the docker dameon running earlier
+
+## Remove all the  containers
+```
+docker-compose down
+```
+
+## Stop all the exited containers
+```
+docker stop $(docker ps --filter status=running -q)
+```
