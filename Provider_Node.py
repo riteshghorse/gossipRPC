@@ -5,6 +5,7 @@ from configuration_manager import ConfigurationManager
 import os
 import time
 import copy
+import socket
 from utils import *
 import Constants
 import socket
@@ -31,7 +32,8 @@ class ProviderNode:
                 return Constants.RANDOM_GOSSIP
 
         if ip in self.IP_to_Node_Index:
-            return typeOfGossip(self.gossip_protocol)
+            return typeOfGossip(self.gossip_protocol)    
+
         
         self.IP_to_Node_Index[ip] = self.node_index
         self.Index_to_IP[self.node_index] = ip
@@ -45,7 +47,7 @@ class ProviderNode:
     
 
 if __name__ == "__main__":
-
+    import socket
 
     configuration_file, gossip_protocol = get_arguments()
    
@@ -53,7 +55,7 @@ if __name__ == "__main__":
     os.environ["GOSSIP_CONFIG"] = configuration_file
     ConfigurationManager.reset_configuration()
 
-    server_ip = ConfigurationManager.get_configuration().get_gossip_host()
+    server_ip =  socket.gethostbyname(socket.gethostname())#ConfigurationManager.get_configuration().get_gossip_host()
     server_port = ConfigurationManager.get_configuration().get_gossip_port()
     
     

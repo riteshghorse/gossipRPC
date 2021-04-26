@@ -1,6 +1,5 @@
 {
-    "host": "localhost",
-    "port": 5001,
-    "seed_host": "localhost",
-    "seed_port": 5002
+    "port": 5000,
+    "seed_host": "node2",
+    "seed_port": 5000
 }

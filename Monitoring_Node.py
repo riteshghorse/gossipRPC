@@ -30,6 +30,7 @@ class MonitoringNode:
         if ip in self.IP_to_Node_Index:
             self.suspect_matrix[self.IP_to_Node_Index[ip]] = list(self.global_fault_vector)
             return
+
         self.global_fault_vector.extend([0])
         self.IP_to_Node_Index[ip] = self.node_index
         self.Index_to_IP[self.node_index] = ip
@@ -136,7 +137,7 @@ class MonitoringNode:
 
 
 if __name__ == "__main__":
-
+    import socket
 
     configuration_file,_ = get_arguments()
    
@@ -144,18 +145,23 @@ if __name__ == "__main__":
     os.environ["GOSSIP_CONFIG"] = configuration_file
     ConfigurationManager.reset_configuration()
 
-    server_ip = ConfigurationManager.get_configuration().get_gossip_host()
+    server_ip =   socket.gethostbyname(socket.gethostname()) #ConfigurationManager.get_configuration().get_gossip_host()
     server_port = ConfigurationManager.get_configuration().get_gossip_port()
     
     
     node = MonitoringNode()
     start_gossip_node(node)
     
-    
+    import json
     while True:
 
         console_input = input("1. \"stop\" \n2. \"check consensus\" \n 3. \"live node\" \n4. \"global suspect matrix\" \n5. \"fault vector\" \n6. start time"
                               "Enter your input:")
+        
+        if console_input.strip() == "collect":
+            with open('states.json','w') as fp:
+                json.dump(node.global_state_map,fp)
+            break
         
         if console_input.strip() == "stop":
             stop_gossip_node()
