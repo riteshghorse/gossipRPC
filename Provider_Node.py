@@ -32,7 +32,8 @@ class ProviderNode:
                 return Constants.RANDOM_GOSSIP
 
         if ip in self.IP_to_Node_Index:
-            return
+            return typeOfGossip(self.gossip_protocol)    
+
         
         self.IP_to_Node_Index[ip] = self.node_index
         self.Index_to_IP[self.node_index] = ip

@@ -254,8 +254,9 @@ class Node(object):
 
 
     def initiateSCRRGossip(self):
-
+        print('--------- called scrr')
         if len(self.rr_list)==0 or self.rr_index ==  self.sc_index:
+            print('--------- reset the list')
             self.rr_list = provider_node.getMapping()
             self.sc_index = self.rr_list.index(self.ip)
             self.rr_index = (self.sc_index + 1) % len(self.rr_list)
@@ -266,7 +267,8 @@ class Node(object):
         
         self.message_count += 1
         ip = self.rr_list[self.rr_index]
-
+        print('--------- trying to send: ', ip)
+        print('--------- handshake: ', self.handshake_nodes)
         if self.isInHandshake(ip):
             try:
                 print("I'm gossiping to--> ", ip)
@@ -277,6 +279,7 @@ class Node(object):
         else:
             print('------> Initiate Handshake for: '+ip)
             self.sendSYN(ip)
+        print('--------- sent scrr')
         self.rr_index =  (self.rr_index + 1) % len(self.rr_list)
         #print('round robin ' + str(self.rr_round) + 'done')
 

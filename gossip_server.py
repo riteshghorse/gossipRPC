@@ -10,6 +10,7 @@ import sched
 import json
 import threading
 import Constants
+
 import copy
 from random_open_port import random_port
 import xmlrpc.client
@@ -30,7 +31,6 @@ def stop_gossip_node():
 
 
 def get_arguments():
-    
     parser = argparse.ArgumentParser()
     parser.add_argument('--config',
                         required=False,
@@ -51,7 +51,7 @@ def get_arguments():
     configuration_file = results.config
     gossip_protocol = results.version
     # return configuration_file, bootstrap_server, server_id, no_hash
-    return (configuration_file,gossip_protocol)
+    return (configuration_file, gossip_protocol)
 
 def stabilize_call(node):
     node.updateHearbeat()
@@ -82,14 +82,13 @@ def scheduleGossip(node):
             deltatime = getDiffInSeconds(v['last_updated_time'])
             if(deltatime >= Constants.WAIT_SECONDS_FAIL):
                 flag_fault = True
-
                 node.fault_vector[k] = 1
 
                 if(deltatime >= Constants.WAIT_SECONDS_CLEAN):
-                    node.endpoint_state_map.pop(k)
-                    node.gDigestList.pop(k)
-                    node.live_nodes.remove(k)
-                    node.handshake_nodes.remove(k)
+                    # node.endpoint_state_map.pop(k)
+                    # node.gDigestList.pop(k)
+                    # node.live_nodes.remove(k)
+                    # node.handshake_nodes.remove(k)
                     print('Clean up done for: ', k)
     
     if flag_fault:
@@ -102,20 +101,20 @@ if __name__ == "__main__":
 
     # configuration_file, bootstrap_server, server_id, no_hash = get_arguments()
     configuration_file, _ = get_arguments()
-    from egnode import Node
     import socket
+    from egnode import Node
     if configuration_file == None:
-        server_ip =  socket.gethostbyname(socket.gethostname()) #"localhost"
-        server_port = 5000
-        data = {"host": server_ip, "port": server_port, "seed_host": 'node1', "seed_port": 5000}
+        server_ip = socket.gethostbyname(socket.gethostname()) 
+        server_port = random_port()
+        data = {"host": server_ip, "port": server_port, "seed_host": "node1", "seed_port": 5000}
         with open('config_'+str(server_port), 'w') as outfile:
             json.dump(data, outfile)
         os.environ["GOSSIP_CONFIG"] = 'config_'+str(server_port)
     else:
         os.environ["GOSSIP_CONFIG"] = configuration_file
         ConfigurationManager.reset_configuration()
-
-        server_ip =  socket.gethostbyname(socket.gethostname())#ConfigurationManager.get_configuration().get_gossip_host()
+        server_ip = socket.gethostbyname(socket.gethostname()) 
+        # server_ip = ConfigurationManager.get_configuration().get_gossip_host()
         server_port = ConfigurationManager.get_configuration().get_gossip_port()
     
     server_id = random.randint(1, 1000)
@@ -130,7 +129,7 @@ if __name__ == "__main__":
         node.gossip_version = Constants.RANDOM
     else:
         node.gossip_version = Constants.ROUND_ROBIN
-    
+
     monitor_client.sendEpStateMap(node.ip, node.endpoint_state_map, node.message_count)
     flag = 0
     scheduler.enter(Constants.WAIT_SECONDS_HEARTBEAT, Constants.HEARTBEAT_PRIO, stabilize_call, (node,))
