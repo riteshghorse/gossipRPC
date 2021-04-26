@@ -161,6 +161,8 @@ if __name__ == "__main__":
         if console_input.strip() == "collect":
             with open('states.json','w') as fp:
                 json.dump(node.global_state_map,fp)
+            with open('ip_mapping.json', 'w') as fp:
+                json.dump(node.IP_to_Node_Index, fp)
             break
         
         if console_input.strip() == "stop":

@@ -104,16 +104,16 @@ if __name__ == "__main__":
     import socket
     from egnode import Node
     if configuration_file == None:
-        server_ip = socket.gethostbyname(socket.gethostname()) 
-        server_port = random_port()
-        data = {"host": server_ip, "port": server_port, "seed_host": "node1", "seed_port": 5000}
+        server_ip = socket.gethostname()
+        server_port = 5000 #random_port()
+        data = {"host": server_ip, "port": server_port, "seed_host": "node1", "seed_port": "5000"}
         with open('config_'+str(server_port), 'w') as outfile:
             json.dump(data, outfile)
         os.environ["GOSSIP_CONFIG"] = 'config_'+str(server_port)
     else:
         os.environ["GOSSIP_CONFIG"] = configuration_file
         ConfigurationManager.reset_configuration()
-        server_ip = socket.gethostbyname(socket.gethostname()) 
+        server_ip = socket.gethostname()
         # server_ip = ConfigurationManager.get_configuration().get_gossip_host()
         server_port = ConfigurationManager.get_configuration().get_gossip_port()
     
@@ -153,3 +153,10 @@ if __name__ == "__main__":
 
         if console_input.strip() == "consensus":
             start_measuring(node)
+        
+        if console_input.strip() == "collect":
+            import json
+            with open('digestList.json', 'w') as fp:
+                json.dump(node.gDigestList, fp)
+            break
+
