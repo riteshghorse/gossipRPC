@@ -33,6 +33,7 @@ class ProviderNode:
 
         if ip in self.IP_to_Node_Index:
             return typeOfGossip(self.gossip_protocol)    
+
         
         self.IP_to_Node_Index[ip] = self.node_index
         self.Index_to_IP[self.node_index] = ip
@@ -47,14 +48,15 @@ class ProviderNode:
 
 if __name__ == "__main__":
     import socket
-
+    import socket, dns.resolver,dns.reversename
     configuration_file, gossip_protocol = get_arguments()
    
 
     os.environ["GOSSIP_CONFIG"] = configuration_file
     ConfigurationManager.reset_configuration()
-
-    server_ip =  socket.gethostbyname(socket.gethostname())#ConfigurationManager.get_configuration().get_gossip_host()
+    
+    host_ip =  socket.gethostbyname(socket.gethostname())#ConfigurationManager.get_configuration().get_gossip_host()
+    server_ip = str(dns.resolver.resolve_address(host_ip).rrset[0]).split('.')[0]
     server_port = ConfigurationManager.get_configuration().get_gossip_port()
     
     

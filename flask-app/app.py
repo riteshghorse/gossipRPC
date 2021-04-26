@@ -1,9 +1,9 @@
 from flask import Flask
 import xmlrpc.client
-import Constants
 
 app = Flask(__name__)
-monitor_client =  xmlrpc.client.ServerProxy('http://' + Constants.MONITOR_ADDRESS + '/RPC2')
+MONITOR_ADDRESS = "monitor-node:8000"
+monitor_client =  xmlrpc.client.ServerProxy('http://' + MONITOR_ADDRESS + '/RPC2')
 
 @app.route('/')
 def hello():

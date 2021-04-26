@@ -138,14 +138,15 @@ class MonitoringNode:
 
 if __name__ == "__main__":
     import socket
+    import socket, dns.resolver,dns.reversename
 
     configuration_file,_ = get_arguments()
    
 
     os.environ["GOSSIP_CONFIG"] = configuration_file
     ConfigurationManager.reset_configuration()
-
-    server_ip =   socket.gethostbyname(socket.gethostname()) #ConfigurationManager.get_configuration().get_gossip_host()
+    host_ip =  socket.gethostbyname(socket.gethostname())#ConfigurationManager.get_configuration().get_gossip_host()
+    server_ip = str(dns.resolver.resolve_address(host_ip).rrset[0]).split('.')[0]
     server_port = ConfigurationManager.get_configuration().get_gossip_port()
     
     
