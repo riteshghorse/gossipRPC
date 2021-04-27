@@ -49,7 +49,17 @@ services:
     - /bin/bash
     networks: 
       - gossip-network
+  
+  flask-app:
+    build: 
+      context: ./flask-app
+    ports:
+      - "5000:5000"
+    networks: 
+      - gossip-network
+    depends_on: 
+      - monitor-node
 
 networks: 
   gossip-network:
-    name: gossip-network
+    name: gossip-network   

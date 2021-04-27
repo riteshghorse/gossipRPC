@@ -84,12 +84,6 @@ def scheduleGossip(node):
                 flag_fault = True
                 node.fault_vector[k] = 1
 
-                if(deltatime >= Constants.WAIT_SECONDS_CLEAN):
-                    # node.endpoint_state_map.pop(k)
-                    # node.gDigestList.pop(k)
-                    # node.live_nodes.remove(k)
-                    # node.handshake_nodes.remove(k)
-                    print('Clean up done for: ', k)
     
     if flag_fault:
         monitor_client.updateSuspectMatrix(node.ip, node.fault_vector, node.heart_beat_state["generation"])
@@ -101,11 +95,12 @@ if __name__ == "__main__":
 
     # configuration_file, bootstrap_server, server_id, no_hash = get_arguments()
     configuration_file, _ = get_arguments()
-    import socket
+    import socket, dns.resolver,dns.reversename
     from egnode import Node
     if configuration_file == None:
-        server_ip = socket.gethostbyname(socket.gethostname()) 
-        server_port = random_port()
+        host_ip =  socket.gethostbyname(socket.gethostname())#ConfigurationManager.get_configuration().get_gossip_host()
+        server_ip = str(dns.resolver.resolve_address(host_ip).rrset[0]).split('.')[0]
+        server_port = 5000
         data = {"host": server_ip, "port": server_port, "seed_host": "node1", "seed_port": 5000}
         with open('config_'+str(server_port), 'w') as outfile:
             json.dump(data, outfile)
@@ -113,7 +108,10 @@ if __name__ == "__main__":
     else:
         os.environ["GOSSIP_CONFIG"] = configuration_file
         ConfigurationManager.reset_configuration()
-        server_ip = socket.gethostbyname(socket.gethostname()) 
+        host_ip =  socket.gethostbyname(socket.gethostname())#ConfigurationManager.get_configuration().get_gossip_host()
+        server_ip = str(dns.resolver.resolve_address(host_ip).rrset[0]).split('.')[0]
+        print(server_ip)
+        #server_ip = socket.gethostbyname(socket.gethostname()) 
         # server_ip = ConfigurationManager.get_configuration().get_gossip_host()
         server_port = ConfigurationManager.get_configuration().get_gossip_port()
     
@@ -153,3 +151,10 @@ if __name__ == "__main__":
 
         if console_input.strip() == "consensus":
             start_measuring(node)
+        
+        if console_input.strip() == "collect":
+            import json
+            with open('digestList.json', 'w') as fp:
+                json.dump(node.gDigestList, fp)
+            
+
