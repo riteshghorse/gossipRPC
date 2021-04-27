@@ -164,7 +164,7 @@ if __name__ == "__main__":
                 json.dump(node.global_state_map,fp)
             with open('ip_mapping.json', 'w') as fp:
                 json.dump(node.IP_to_Node_Index, fp)
-            break
+            
         
         if console_input.strip() == "stop":
             stop_gossip_node()
@@ -176,7 +176,7 @@ if __name__ == "__main__":
             print('\n--------- check complete ------------')
             
             
-        if console_input.strip() == "start":
+        if console_input.strip() == "z":
             node.start_time = time.perf_counter()  
             while(1):
                 result_dict = {}
@@ -191,8 +191,9 @@ if __name__ == "__main__":
                     print('------------- Consensus Achieved --------------')
                     run_time = time.perf_counter() - node.start_time 
                     print(run_time)
-                    print(node.total_msg_count)          
-                    exit(0)
+                    print(node.total_msg_count)    
+                    break      
+                    # exit(0)
 
         if console_input.strip() == "live":
             print(node.getMapping().keys())

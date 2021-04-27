@@ -162,5 +162,5 @@ if __name__ == "__main__":
             import json
             with open('digestList.json', 'w') as fp:
                 json.dump(node.gDigestList, fp)
-            break
+            
 

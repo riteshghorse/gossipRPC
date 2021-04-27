@@ -126,7 +126,7 @@ docker stop $(docker ps --filter status=running -q)
 
 
 ```
-sudo docker exec -it monitor-node /bin/bash
+sudo docker exec -u root -it monitor-node /bin/bash
 python Monitoring_Node.py --config config/monitor.json
 ```
 
@@ -140,7 +140,7 @@ sudo docker exec -u root -it node1 /bin/bash
 python gossip_server.py --config config/config1.json
 
 ```
-
+collect
 ```
 sudo docker exec -u root -it node2 /bin/bash
 python gossip_server.py --config config/config2.json
@@ -155,4 +155,25 @@ python gossip_server.py
 ```
 sudo docker exec -u root -it gossiprpc_node_4 /bin/bash
 python gossip_server.py 
+```
+
+```
+docker exec -u root -it gossiprpc_node_5 /bin/bash
+python gossip_server.py
+```
+
+```
+docker exec -u root -it gossiprpc_node_6 /bin/bash
+python gossip_server.py
+```
+
+```
+docker exec -u root -it gossiprpc_node_7 /bin/bash
+python gossip_server.py
+```
+
+
+```
+docker exec -u root -it gossiprpc_node_8 /bin/bash
+python gossip_server.py
 ```
