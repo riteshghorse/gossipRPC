@@ -84,12 +84,6 @@ def scheduleGossip(node):
                 flag_fault = True
                 node.fault_vector[k] = 1
 
-                if(deltatime >= Constants.WAIT_SECONDS_CLEAN):
-                    # node.endpoint_state_map.pop(k)
-                    # node.gDigestList.pop(k)
-                    # node.live_nodes.remove(k)
-                    # node.handshake_nodes.remove(k)
-                    print('Clean up done for: ', k)
     
     if flag_fault:
         monitor_client.updateSuspectMatrix(node.ip, node.fault_vector, node.heart_beat_state["generation"])

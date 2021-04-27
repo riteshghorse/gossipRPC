@@ -111,6 +111,9 @@ class MonitoringNode:
                     self.ip_generation[j] = self.global_state_map[self.Index_to_IP[j]][self.Index_to_IP[j]]['heartBeat']['generation']
                 except Exception as e:
                     pass
+        # if(self.test_flag == 1):
+        #     print("Suspect matrix --> ", self.suspect_matrix)
+        #     print("\n\n")
         print('---------------------------------------')
 
 
@@ -128,10 +131,14 @@ class MonitoringNode:
 
         # consensusMap = {k:{'App_version':v[], 'App_status':, 'generation':, 'fault_vector':}   }
         keyList = list(self.consensusMap.keys())
-        for i in range(len(keyList)-1):
+        temp = None
+        for i in range(len(keyList)):
             if self.global_fault_vector[self.IP_to_Node_Index[keyList[i]]] != 1:
-                res = res & (self.consensusMap[keyList[i]] == self.consensusMap[keyList[i+1]])
-        
+                if temp == None:
+                    temp = self.consensusMap[keyList[i]]
+                else:
+                    res = res & (temp == self.consensusMap[keyList[i]])
+                    temp = self.consensusMap[keyList[i]]
         return res
 
 
@@ -175,18 +182,31 @@ if __name__ == "__main__":
                 time.sleep(2)
             print('\n--------- check complete ------------')
             
-            
-        if console_input.strip() == "z":
+        
+        if console_input.strip() == "1":
+            # single node failure case
             node.start_time = time.perf_counter()  
+            node.total_msg_count = 0
+            flag = 0
             while(1):
-                result_dict = {}
+                for ip,status in enumerate(node.global_fault_vector):
+                    ip = node.Index_to_IP[ip]
+                    if status == 1 and (getDiffInSeconds(node.heartbeatTime[ip]) > Constants.WAIT_SECONDS_FAIL):
+                        flag = 1        #consensus
+                        break
+                
+                if flag:
+                    print('------------- Consensus Achieved --------------')
+                    run_time = time.perf_counter() - node.start_time 
+                    print(run_time)
+                    print(node.total_msg_count)    
+                    break      
 
 
-                for k,v in node.global_state_map.items():
-                    result_dict[k] = len(v)
-                    
-                # print(result_dict)
-                # if(len(list(set(list(result_dict.values())))) == 1):
+        if console_input.strip() == "2":
+            node.start_time = time.perf_counter()  
+            node.total_msg_count = 0
+            while(1):
                 if(node.doConsensusCheck()):
                     print('------------- Consensus Achieved --------------')
                     run_time = time.perf_counter() - node.start_time 
@@ -194,6 +214,18 @@ if __name__ == "__main__":
                     print(node.total_msg_count)    
                     break      
                     # exit(0)
+
+        if console_input.strip() == "3":
+            node.start_time = time.perf_counter()  
+            node.total_msg_count = 0
+            while(1):
+                # if(len(list(set(list(result_dict.values())))) == 1):
+                if(node.doConsensusCheck()):
+                    print('------------- Consensus Achieved --------------')
+                    run_time = time.perf_counter() - node.start_time 
+                    print(run_time)
+                    print(node.total_msg_count)    
+                    exit(0)  
 
         if console_input.strip() == "live":
             print(node.getMapping().keys())
