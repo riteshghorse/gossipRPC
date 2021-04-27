@@ -127,10 +127,14 @@ class MonitoringNode:
 
         # consensusMap = {k:{'App_version':v[], 'App_status':, 'generation':, 'fault_vector':}   }
         keyList = list(self.consensusMap.keys())
+        temp = None
         for i in range(len(keyList)-1):
             if self.global_fault_vector[self.IP_to_Node_Index[keyList[i]]] != 1:
-                res = res & (self.consensusMap[keyList[i]] == self.consensusMap[keyList[i+1]])
-        
+                if temp == None:
+                    temp = self.consensusMap[keyList[i]]
+                else:
+                    res = res & (temp == self.consensusMap[keyList[i]])
+                    temp = self.consensusMap[keyList[i]]
         return res
 
 
@@ -169,6 +173,7 @@ if __name__ == "__main__":
             
         if console_input.strip() == "start":
             node.start_time = time.perf_counter()  
+            node.total_msg_count = 0
             while(1):
                 result_dict = {}
 
@@ -183,7 +188,7 @@ if __name__ == "__main__":
                     run_time = time.perf_counter() - node.start_time 
                     print(run_time)
                     print(node.total_msg_count)          
-                    exit(0)
+                    break
 
         if console_input.strip() == "live":
             print(node.getMapping().keys())
