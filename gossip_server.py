@@ -136,7 +136,7 @@ if __name__ == "__main__":
 
     while True:
         
-        console_input = input("\n1.connect\n2.consensus")
+        console_input = input("\n1.connect\n")
         
         if console_input.strip() == "stop":
         
@@ -149,8 +149,6 @@ if __name__ == "__main__":
             node.sendSYN(inp)
             scheduler.enter(Constants.WAIT_SECONDS_GOSSIP, Constants.GOSSIP_PRIO, scheduleGossip, (node,))
 
-        if console_input.strip() == "consensus":
-            start_measuring(node)
         
         if console_input.strip() == "collect":
             import json

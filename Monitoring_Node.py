@@ -22,6 +22,7 @@ class MonitoringNode:
         self.consensusMap = defaultdict(defaultdict)
         self.ip_generation = defaultdict()
         self.heartbeatTime = {}
+        self.false_failure_count = 0
 
     def setheartbeatTime(self, ip):
         self.heartbeatTime[ip] = getTimeStamp()
@@ -58,6 +59,8 @@ class MonitoringNode:
                 try:
                     if(self.IP_to_Node_Index[k] in self.ip_generation and generation == self.ip_generation[self.IP_to_Node_Index[k]]):
                         print('False failure detection happened for ', k)        
+                        self.false_failure_count += 1  
+                        # self.ip_generation.pop(self.IP_to_Node_Index[k], None) 
                 except Exception as e:
                     pass
             
@@ -141,6 +144,12 @@ class MonitoringNode:
                     temp = self.consensusMap[keyList[i]]
         return res
 
+    def readFile(self):
+        data = ""
+        with open('results.txt', 'r') as fp:
+            data = fp.read()
+        data = data.replace('\n', '<br>')
+        return data
 
 
 if __name__ == "__main__":
@@ -161,10 +170,13 @@ if __name__ == "__main__":
     start_gossip_node(node)
     
     import json
+
     while True:
 
-        console_input = input("1. \"stop\" \n2. \"check consensus\" \n 3. \"live node\" \n4. \"global suspect matrix\" \n5. \"fault vector\" \n6. start time"
-                              "Enter your input:")
+        console_input = input("1. \"Test Case for Single Node failure\"\
+                             \n2. \"Test Case for Simultaneous Failure\"\
+                             \n3. \"Test Case for Dead Node becomes Alive\"\
+                            \n4. \"stop\"\nEnter your input:")
         
         if console_input.strip() == "collect":
             with open('states.json','w') as fp:
@@ -173,20 +185,14 @@ if __name__ == "__main__":
                 json.dump(node.IP_to_Node_Index, fp)
             
         
-        if console_input.strip() == "stop":
-            stop_gossip_node()
-            break
+        
 
-        if console_input.strip() == "check":
-            while(node.doConsensusCheck()):
-                time.sleep(2)
-            print('\n--------- check complete ------------')
-            
         
         if console_input.strip() == "1":
             # single node failure case
             node.start_time = time.perf_counter()  
             node.total_msg_count = 0
+            node.false_failure_count = 0
             flag = 0
             while(1):
                 for ip,status in enumerate(node.global_fault_vector):
@@ -196,47 +202,65 @@ if __name__ == "__main__":
                         break
                 
                 if flag:
-                    print('------------- Consensus Achieved --------------')
                     run_time = time.perf_counter() - node.start_time 
-                    print(run_time)
-                    print(node.total_msg_count)    
-                    break      
+                    with open('results.txt', 'a+') as file_pointer:
+                        file_pointer.write('\n\n------------- Consensus Achieved --------------\n')
+                        file_pointer.write('Test Case for Single Node failure\n')
+                        file_pointer.write("Run time for detection: "+str(run_time)+'\n')
+                        file_pointer.write("Total Messages exchanged for consensus: "+str(node.total_msg_count)+'\n') 
+                        file_pointer.write("False Failure Detection Count: "+str(node.false_failure_count)+'\n')
+                        file_pointer.close()
+                    print('------------- Consensus Achieved --------------')
+                    print("Run time for detection: ", run_time)
+                    print("Total Messages exchanged for consensus: ", node.total_msg_count)  
+                    print("False Failure Detection Count: ",node.false_failure_count)  
+                    break          
 
 
         if console_input.strip() == "2":
             node.start_time = time.perf_counter()  
             node.total_msg_count = 0
+            node.false_failure_count = 0
             while(1):
                 if(node.doConsensusCheck()):
-                    print('------------- Consensus Achieved --------------')
                     run_time = time.perf_counter() - node.start_time 
-                    print(run_time)
-                    print(node.total_msg_count)    
-                    break      
+                    with open('results.txt', 'a+') as file_pointer:
+                        file_pointer.write('\n\n------------- Consensus Achieved --------------\n')
+                        file_pointer.write('Test Case for Simultaneous Failure\n')
+                        file_pointer.write("Run time for detection: "+str(run_time)+'\n')
+                        file_pointer.write("Total Messages exchanged for consensus"+str(node.total_msg_count)+'\n') 
+                        file_pointer.write("False Failure Detection Count: "+str(node.false_failure_count)+'\n') 
+                        file_pointer.close()
+                    print('------------- Consensus Achieved --------------')
+                    print("Run time for detection: ", run_time)
+                    print("Total Messages exchanged for consensus", node.total_msg_count)  
+                    print("False Failure Detection Count: ",node.false_failure_count)     
+                    break       
                     # exit(0)
 
         if console_input.strip() == "3":
             node.start_time = time.perf_counter()  
             node.total_msg_count = 0
+            node.false_failure_count = 0
             while(1):
                 # if(len(list(set(list(result_dict.values())))) == 1):
                 if(node.doConsensusCheck()):
-                    print('------------- Consensus Achieved --------------')
                     run_time = time.perf_counter() - node.start_time 
-                    print(run_time)
-                    print(node.total_msg_count)    
-                    exit(0)  
-
-        if console_input.strip() == "live":
-            print(node.getMapping().keys())
-
-        if console_input.strip() == 'suspect':
-            print(node.getSuspectMatrix())
-
-        if console_input.strip() == 'fault':
-            print(node.global_fault_vector)
-
-        if console_input.strip() == 'consensus':
-            node.doConsensus()
+                    with open('results.txt', 'a+') as file_pointer:
+                        file_pointer.write('\n\n------------- Consensus Achieved --------------\n')
+                        file_pointer.write('Test Case for Dead Node becomes Alive\n')
+                        file_pointer.write("Run time for detection: "+str(run_time)+'\n')
+                        file_pointer.write("Total Messages exchanged for consensus"+str(node.total_msg_count)+'\n') 
+                        file_pointer.write("False Failure Detection Count: "+str(node.false_failure_count)+'\n') 
+                        file_pointer.close()
+                    print('------------- Consensus Achieved --------------')
+                    print("Run time for detection: ", run_time)
+                    print("Total Messages exchanged for consensus", node.total_msg_count)  
+                    print("False Failure Detection Count: ",node.false_failure_count)     
+                    exit(0)
 
 
+
+        if console_input.strip() == "4":
+            stop_gossip_node()
+            break

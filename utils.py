@@ -13,14 +13,7 @@ def getDiffInSeconds(time1):
     
     date2 = datetime.datetime.now()
     date1 = datetime.datetime.strptime(time1, '%Y-%m-%d %H:%M:%S.%f')
-    # print('**************************************')
-    # print(type(time1), type(date2))
-    # print(time1, date2)
-
-    # print('**************************************')
-    # date1 = time1
-    # if(str(type(time1)) != "<class 'datetime.datetime'>"):
-    # date1 = datetime.datetime.strptime(str(time1), '%Y%m%dT%H:%M:%S.%f')
+    
     timedelta = date2 - date1
     # diff = timedelta.days * 24 * 3600 + timedelta.seconds + timedelta.microseconds
     # print(timedelta)
