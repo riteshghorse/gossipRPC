@@ -131,7 +131,7 @@ python Monitoring_Node.py --config config/monitor.json
 ```
 
 ```
-sudo docker exec -it provider-node /bin/bash
+sudo docker exec -u root -it provider-node /bin/bash
 python Provider_Node.py --config config/provider.json --version random
 ```
 

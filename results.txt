@@ -1,0 +1,21 @@
+
+
+------------- Consensus Achieved --------------
+Test Case for Single Node failure
+Run time for detection: 0
+Total Messages exchanged for consensus0
+False Failure Detection Count: 0
+
+
+------------- Consensus Achieved --------------
+Test Case for Single Node failure
+Run time for detection: 0
+Total Messages exchanged for consensus0
+False Failure Detection Count: 0
+
+
+------------- Consensus Achieved --------------
+Test Case for Single Node failure
+Run time for detection: 0
+Total Messages exchanged for consensus0
+False Failure Detection Count: 0

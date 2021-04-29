@@ -21,3 +21,7 @@ def fault_vector():
 @app.route('/status')
 def status():
     return monitor_client.showAliveDeadNode()
+
+@app.route('/results')
+def show_results():
+    return monitor_client.readFile()

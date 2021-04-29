@@ -62,6 +62,11 @@ if __name__ == "__main__":
     
     node = ProviderNode()
     node.gossip_protocol = gossip_protocol
+    with open('results.txt', 'a+') as fp:
+        fp.write(node.gossip_protocol)
+        fp.write('---------------------------\n')
+        fp.close()
+        
     start_gossip_node(node)
     print("----------Provider Node---------")
     while 1:
