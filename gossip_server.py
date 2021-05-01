@@ -134,25 +134,31 @@ if __name__ == "__main__":
     stabilization_thread = threading.Thread(target=scheduler.run, args=(True,))
     stabilization_thread.start()
 
-    while True:
-        
-        console_input = input("\n1.connect\n")
-        
-        if console_input.strip() == "stop":
-        
-            stop_gossip_node()
-            break
+    if configuration_file == None:
+        inp = str(ConfigurationManager.get_configuration().get_seed_host())+':'+str(ConfigurationManager.get_configuration().get_seed_port())
+        node.sendSYN(inp)
+        scheduler.enter(Constants.WAIT_SECONDS_GOSSIP, Constants.GOSSIP_PRIO, scheduleGossip, (node,))
 
-        if console_input.strip() == "connect":
-            flag = 1
-            inp = str(ConfigurationManager.get_configuration().get_seed_host())+':'+str(ConfigurationManager.get_configuration().get_seed_port())
-            node.sendSYN(inp)
-            scheduler.enter(Constants.WAIT_SECONDS_GOSSIP, Constants.GOSSIP_PRIO, scheduleGossip, (node,))
+    else:
+        while True:
+            
+            console_input = input("\n1.connect\n")
+            
+            if console_input.strip() == "stop":
+            
+                stop_gossip_node()
+                break
 
-        
-        if console_input.strip() == "collect":
-            import json
-            with open('digestList.json', 'w') as fp:
-                json.dump(node.gDigestList, fp)
+            if console_input.strip() == "connect":
+                flag = 1
+                inp = str(ConfigurationManager.get_configuration().get_seed_host())+':'+str(ConfigurationManager.get_configuration().get_seed_port())
+                node.sendSYN(inp)
+                scheduler.enter(Constants.WAIT_SECONDS_GOSSIP, Constants.GOSSIP_PRIO, scheduleGossip, (node,))
+
+            
+            if console_input.strip() == "collect":
+                import json
+                with open('digestList.json', 'w') as fp:
+                    json.dump(node.gDigestList, fp)
             
 

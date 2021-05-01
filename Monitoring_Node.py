@@ -277,6 +277,7 @@ if __name__ == "__main__":
                         file_pointer.write("Run time for detection: "+str(run_time)+'\n')
                         file_pointer.write("Total Messages exchanged for consensus: "+str(node.total_msg_count)+'\n') 
                         file_pointer.write("False Failure Detection Count: "+str(node.false_failure_count)+'\n')
+                        file_pointer.write("Total number of nodes in cluster: "+str(len(node.Index_to_IP))+'\n')
                         file_pointer.close()
                     print('------------- Consensus Achieved --------------')
                     print("Run time for detection: ", run_time)
@@ -298,6 +299,7 @@ if __name__ == "__main__":
                         file_pointer.write("Run time for detection: "+str(run_time)+'\n')
                         file_pointer.write("Total Messages exchanged for consensus"+str(node.total_msg_count)+'\n') 
                         file_pointer.write("False Failure Detection Count: "+str(node.false_failure_count)+'\n') 
+                        file_pointer.write("Total number of nodes in cluster: "+str(len(node.Index_to_IP))+'\n')
                         file_pointer.close()
                     print('------------- Consensus Achieved --------------')
                     print("Run time for detection: ", run_time)
@@ -320,12 +322,14 @@ if __name__ == "__main__":
                         file_pointer.write("Run time for detection: "+str(run_time)+'\n')
                         file_pointer.write("Total Messages exchanged for consensus"+str(node.total_msg_count)+'\n') 
                         file_pointer.write("False Failure Detection Count: "+str(node.false_failure_count)+'\n') 
+                        file_pointer.write("Total number of nodes in cluster: "+str(len(node.Index_to_IP))+'\n')
                         file_pointer.close()
                     print('------------- Consensus Achieved --------------')
                     print("Run time for detection: ", run_time)
                     print("Total Messages exchanged for consensus", node.total_msg_count)  
                     print("False Failure Detection Count: ",node.false_failure_count)     
-                    exit(0)
+                    break
+                    # exit(0)
 
 
 

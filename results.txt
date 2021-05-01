@@ -1,0 +1,21 @@
+
+
+------------- Consensus Achieved --------------
+Test Case for Single Node failure
+Run time for detection: 5.017274999998335
+Total Messages exchanged for consensus: 3606
+False Failure Detection Count: 24
+
+
+------------- Consensus Achieved --------------
+Test Case for Simultaneous Failure
+Run time for detection: 51.666797199999564
+Total Messages exchanged for consensus44035
+False Failure Detection Count: 472
+
+
+------------- Consensus Achieved --------------
+Test Case for Dead Node becomes Alive
+Run time for detection: 54.48183059999974
+Total Messages exchanged for consensus47293
+False Failure Detection Count: 668
