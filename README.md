@@ -149,12 +149,12 @@ python gossip_server.py --config config/config2.json
 
 ```
 sudo docker exec -u root -it gossiprpc_node_3 /bin/bash
-python gossip_server.py 
+python gossip_node.py 
 ```
 
 ```
 sudo docker exec -u root -it gossiprpc_node_4 /bin/bash
-python gossip_server.py 
+python gossip_node.py 
 ```
 
 ```
