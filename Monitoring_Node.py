@@ -1,3 +1,8 @@
+# Author: Ritesh G, Shreyas M
+
+
+
+
 from xmlrpc.server import SimpleXMLRPCServer
 from collections import defaultdict
 from gossip_server import get_arguments, start_gossip_node, stop_gossip_node
@@ -9,18 +14,30 @@ from utils import *
 import Constants
 
 class MonitoringNode:
+    """
+    Author: Ritesh G, Shreyas M
+    Independent Node to passively receive information from 
+    other nodes in cluster. 
+
+    1. Keeps track of nodes joining the network.
+    2. Shows the state of cluster.
+    3. Implementation of Consensus Algorithm
+
+    NOTE: This node is not a part of cluster and it doesn't participate 
+          or provide information to any node in the cluster.
+    """
     def __init__(self):
-        self.node_index = 0
-        self.IP_to_Node_Index = {}
+        # Author: Ritesh G
+        self.node_index = 0                                 # order of node joining
+        self.IP_to_Node_Index = {}          
         self.Index_to_IP = {}
-        self.suspect_matrix = [[]]
-        self.global_fault_vector = []
-        self.global_state_map = defaultdict(defaultdict)
-        self.start_time = None
-        self.node_msg_count = defaultdict()
+        self.suspect_matrix = [[]]                          # matrix of fault vectors of every node.
+        self.global_fault_vector = []                       # overall state of network. 1 is FAIL.
+        self.global_state_map = defaultdict(defaultdict)    # State of cluster
+        self.start_time = None               
         self.total_msg_count = 0
         self.consensusMap = defaultdict(defaultdict)
-        self.ip_generation = defaultdict()
+        self.ip_generation = defaultdict()                  # records node's generation at which failure occured.
         self.heartbeatTime = {}
         self.false_failure_count = 0
 
@@ -28,6 +45,12 @@ class MonitoringNode:
         self.heartbeatTime[ip] = getTimeStamp()
 
     def setMapping(self,ip):
+        """
+        Author: Ritesh G
+        :param ip: new IP joining the network
+
+        Intializes Fault vector for this IP and updates global fault vector.
+        """
         if ip in self.IP_to_Node_Index:
             self.suspect_matrix[self.IP_to_Node_Index[ip]] = list(self.global_fault_vector)
             return
@@ -45,10 +68,21 @@ class MonitoringNode:
         self.node_index += 1
 
     def getMapping(self):
+        """
+        Author: Ritesh G
+
+        Used in front-end of Flask.
+        """
         return self.IP_to_Node_Index
 
 
     def updateSuspectMatrix(self, ip, fault_vector, generation):
+        """
+        Author: Ritesh G
+        :param ip          : IP who is telling to update status for nodes is fault_vector
+        :param fault_vector: new status of nodes according to IP
+        "param generation  : used in false failure detection. 
+        """
         try:
             if self.global_fault_vector[self.IP_to_Node_Index[ip]] == 1:
                 self.global_fault_vector[self.IP_to_Node_Index[ip]] = 0
@@ -58,47 +92,68 @@ class MonitoringNode:
             if v==0:
                 try:
                     if(self.IP_to_Node_Index[k] in self.ip_generation and generation == self.ip_generation[self.IP_to_Node_Index[k]]):
+                        # if generation for a node which was previously detected FAIL is same as 
+                        # current generation in alive state then it was a FALSE FAILURE DETECTION
                         print('False failure detection happened for ', k)        
                         self.false_failure_count += 1  
-                        # self.ip_generation.pop(self.IP_to_Node_Index[k], None) 
                 except Exception as e:
                     pass
             
             self.suspect_matrix[self.IP_to_Node_Index[ip]][self.IP_to_Node_Index[k]] = v 
-            
         self.doConsensus()
 
+
     def getFaultVector(self):
+        """
+        Author: Ritesh G
+
+        Used in front-end of Flask.
+        """
         return self.global_fault_vector
 
     def showAliveDeadNode(self):
+        # Author: Ritesh G
         live_nodes = [self.Index_to_IP[ip] for ip,status in enumerate(self.global_fault_vector) if status!=1]
         dead_nodes = [self.Index_to_IP[ip] for ip,status in enumerate(self.global_fault_vector) if status==1]
-        # return live_nodes
         return {'live': live_nodes, 'dead': dead_nodes}
 
     def sendEpStateMap(self, ip, epStateMap, msg_count):
+        # Author: Ritesh G
         self.receiveStateMap(ip, epStateMap, msg_count)
         
 
     def receiveStateMap(self, ip, epStateMap, msg_count):
+        """
+        Author: Ritesh G
+
+        Receives information from nodes passively.
+        It includes:
+            what a node thinks about the cluster and
+            total messages exchanged by the node up until this point.
+        """
         self.global_state_map[ip] = epStateMap
-        # self.node_msg_count[ip] += msg_count
         self.total_msg_count += msg_count
 
-
-
     def getSuspectMatrix(self):
+        """
+        Author: Ritesh G
+
+        Used in front-end of Flask.
+        """
         return self.suspect_matrix
 
     def doConsensus(self):
+        """
+        Author: Shreyas M
+
+        Consensus Algorithm.    
+        """
+
         print('---------------------------------------')
         for j in range(len(self.suspect_matrix[0])):
             state = 1
-            # flag = 1
             for i in range(len(self.suspect_matrix)):
                 if i != j and ((self.global_fault_vector[i]) != 1):
-                    # print('first if')
                     try:
                         if getDiffInSeconds(self.heartbeatTime[self.Index_to_IP[i]]) < Constants.WAIT_SECONDS_FAIL:
                             state &= self.suspect_matrix[i][j]
@@ -114,13 +169,18 @@ class MonitoringNode:
                     self.ip_generation[j] = self.global_state_map[self.Index_to_IP[j]][self.Index_to_IP[j]]['heartBeat']['generation']
                 except Exception as e:
                     pass
-        # if(self.test_flag == 1):
-        #     print("Suspect matrix --> ", self.suspect_matrix)
-        #     print("\n\n")
         print('---------------------------------------')
 
 
     def doConsensusCheck(self):
+        """
+        Author: Shreyas M
+
+        Check Consensus.
+        NOTE: This doesn't provide any external information to the nodes about 
+              the status of nodes. It is just for presentation purpose to know
+              what is happening inside the cluster.
+        """
         res = True
         currentEpStateMap =  copy.deepcopy(self.global_state_map)
         for k,v in currentEpStateMap.items() :
@@ -132,6 +192,7 @@ class MonitoringNode:
                 temp['fault_vector'] = self.suspect_matrix[self.IP_to_Node_Index[k]]
                 self.consensusMap[k][k1] = temp
 
+        # structure of consensus map
         # consensusMap = {k:{'App_version':v[], 'App_status':, 'generation':, 'fault_vector':}   }
         keyList = list(self.consensusMap.keys())
         temp = None
@@ -145,6 +206,11 @@ class MonitoringNode:
         return res
 
     def readFile(self):
+        """
+        Author: Ritesh G
+
+        Used in front-end of Flask.
+        """
         data = ""
         with open('results.txt', 'r') as fp:
             data = fp.read()
@@ -161,11 +227,13 @@ if __name__ == "__main__":
 
     os.environ["GOSSIP_CONFIG"] = configuration_file
     ConfigurationManager.reset_configuration()
-    host_ip =  socket.gethostbyname(socket.gethostname())#ConfigurationManager.get_configuration().get_gossip_host()
+    
+    # Author: Tanvi P
+    host_ip =  socket.gethostbyname(socket.gethostname())
     server_ip = str(dns.resolver.resolve_address(host_ip).rrset[0]).split('.')[0]
     server_port = ConfigurationManager.get_configuration().get_gossip_port()
     
-    
+    # Author: Ritesh G
     node = MonitoringNode()
     start_gossip_node(node)
     

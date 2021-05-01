@@ -15,4 +15,3 @@ USER app_user
 COPY . .
 
 CMD ["bash"]
-#CMD ["python", "-m","Monitoring_Node","--config ./config/monitor.json"]
