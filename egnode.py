@@ -7,13 +7,12 @@ import threading
 import xmlrpc.client
 from random import sample
 
-import Constants
-from configuration_manager import ConfigurationManager
-from SynGossipDigest import *
-from SynVerbHandler import *
-from AckVerbHandler import *
-from Ack2VerbHandler import *
-from utils import *
+import utilities.Constants as Constants
+from handlers.SynGossipDigest import *
+from handlers.SynVerbHandler import *
+from handlers.AckVerbHandler import *
+from handlers.Ack2VerbHandler import *
+from utilities.utils import *
 
 
  
@@ -27,7 +26,7 @@ class Node(object):
         Author: Ritesh G
 
         Initialization of Data Structures maintained at every node.
-        
+
         """
         self.ip = str(host) + ':' + str(port)
         self.heart_beat_state = {"heartBeatValue": Constants.INITIAL_HEARTBEAT, "generation": getCurrentGeneration()} 
@@ -57,9 +56,11 @@ class Node(object):
 
     def sendSYN(self, sendTo):
         """
-        sends SYN. Starts gossiping
+        Author: Shreyas M
+        
+        :param sendTo: IP address of node to initiate the handshake.
 
-        Note: If only one node is present in gDigestList
+        First step of handshake. Sends SYN.
         """
         self.message_count += 1
         synDigest = SynGossipDigest(Constants.DEFAULT_CLUSTER, self.gDigestList)
@@ -72,6 +73,10 @@ class Node(object):
         
 
     def acceptSyn(self,synDigest, clientIp):
+        """
+        Author: Shreyas M
+        
+        """
         self.message_count += 1
         variable = SynVerbHandler(self)
         deltaGDigest, deltaEpStateMap = variable.handleSync(synDigest)
@@ -107,6 +112,10 @@ class Node(object):
 
 
     def acceptAck(self, deltaGDigest, deltaEpStateMap, clientIp):
+        """
+        Author: Shreyas M
+        
+        """
         print('\nIn Accept ACK')
         self.message_count += 1
         epStateMap = {}
@@ -149,6 +158,10 @@ class Node(object):
 
 
     def acceptAck2(self, deltaEpStateMap, clientIp):
+        """
+        Author: Shreyas M
+        
+        """
         print('\n in Accept Ack 2')
         self.message_count += 1
 
@@ -257,7 +270,7 @@ class Node(object):
         in current list are processed. Special formula is used in calculating destination
         node index.
 
-        Sends a normal gossip if already done with handshake. Else do the handshake first.
+        Sends a normal gossip if already done with handshake. Else does the handshake first.
         """
         if len(self.rr_list)==0 or self.rr_round-1 > math.log2(len(self.rr_list)):
             self.rr_list = provider_node.getMapping()
@@ -284,7 +297,10 @@ class Node(object):
 
 
     def initiateSCRRGossip(self):
+        """
+        Author: Shreyas M
         
+        """
         if len(self.rr_list)==0 or self.rr_index ==  self.sc_index:
             self.rr_list = provider_node.getMapping()
             self.sc_index = self.rr_list.index(self.ip)
@@ -311,6 +327,10 @@ class Node(object):
 
 
     def startGossip(self, gossip_protocol):
+        """
+        Author: Tanvi P
+        
+        """
         if gossip_protocol == Constants.RANDOM_GOSSIP:
             self.initiateRandomGossip()
 

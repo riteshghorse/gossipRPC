@@ -6,8 +6,9 @@ Basic XML RPC setup
 from xmlrpc import server
 import threading
 import socketserver
-from configuration_manager import ConfigurationManager
+from gossip_rpc.config import Configuration
 import socket
+import os
 
 class GossipRPCRequestHandler(server.SimpleXMLRPCRequestHandler):
     """
@@ -31,25 +32,24 @@ class XMLRPCGossipManager(object):
     server_thread = None
 
     @staticmethod
-    def start_server(gossip_node):
-
+    def get_ip_port():
         ip = socket.gethostbyname(socket.gethostname())
-        port = ConfigurationManager.get_configuration().get_gossip_port()
+        configuration = Configuration(os.environ["GOSSIP_CONFIG"])
+        port = configuration.get_gossip_port()
+        return ip, port
 
-        print("Host IP + port is " + str(ip) + ":"+ str(port))
-
+    @staticmethod
+    def start_server(gossip_node):
+        ip, port = XMLRPCGossipManager.get_ip_port()
         if not XMLRPCGossipManager.server and not XMLRPCGossipManager.server_thread:
-            XMLRPCGossipManager.server = AsyncXMLRPCServer((ip, port), GossipRPCRequestHandler, allow_none=True,
-                                                                logRequests=False)
+            XMLRPCGossipManager.server = AsyncXMLRPCServer((ip, port), GossipRPCRequestHandler, allow_none=True, logRequests=False)
             XMLRPCGossipManager.server.register_instance(gossip_node)
-            XMLRPCGossipManager.server_thread = \
-                threading.Thread(target=XMLRPCGossipManager.server.serve_forever)
+            XMLRPCGossipManager.server_thread = threading.Thread(target=XMLRPCGossipManager.server.serve_forever)
             XMLRPCGossipManager.server_thread.daemon = True
             XMLRPCGossipManager.server_thread.start()
 
     @staticmethod
     def stop_server():
-
         if XMLRPCGossipManager.server and XMLRPCGossipManager.server_thread:
             XMLRPCGossipManager.server.shutdown()
             XMLRPCGossipManager.server.server_close()

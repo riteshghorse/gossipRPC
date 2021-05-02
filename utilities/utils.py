@@ -10,11 +10,8 @@ def getTimeStamp():
 
 # doesn't cover milliseconds difference
 def getDiffInSeconds(time1):
-    
     date2 = datetime.datetime.now()
     date1 = datetime.datetime.strptime(time1, '%Y-%m-%d %H:%M:%S.%f')
     
     timedelta = date2 - date1
-    # diff = timedelta.days * 24 * 3600 + timedelta.seconds + timedelta.microseconds
-    # print(timedelta)
     return timedelta.seconds + (timedelta.microseconds)//1000000

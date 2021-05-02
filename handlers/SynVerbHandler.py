@@ -1,8 +1,7 @@
 
 
-from SynGossipDigest import *
+from handlers.SynGossipDigest import *
 from collections import defaultdict
-# from egnode import 
 
 class SynVerbHandler(object):
 

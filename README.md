@@ -137,13 +137,13 @@ python Provider_Node.py --config config/provider.json --version random
 
 ```
 sudo docker exec -u root -it node1 /bin/bash
-python gossip_server.py --config config/config1.json
+python gossip_server.py --config config_files/config1.json
 
 ```
 
 ```
 sudo docker exec -u root -it node2 /bin/bash
-python gossip_server.py --config config/config2.json
+python gossip_server.py --config config_files/config2.json
 ```
 
 

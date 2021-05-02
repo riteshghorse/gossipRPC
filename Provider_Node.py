@@ -1,13 +1,13 @@
 from xmlrpc.server import SimpleXMLRPCServer
 from collections import defaultdict
 from gossip_server import get_arguments, start_gossip_node, stop_gossip_node
-from configuration_manager import ConfigurationManager
+from gossip_rpc.config import Configuration
 import os
 import time
 import copy
 import socket
-from utils import *
-import Constants
+from utilities.utils import *
+import utilities.Constants as Constants
 import socket
 
 class ProviderNode:
@@ -53,11 +53,10 @@ if __name__ == "__main__":
    
 
     os.environ["GOSSIP_CONFIG"] = configuration_file
-    ConfigurationManager.reset_configuration()
-    
-    host_ip =  socket.gethostbyname(socket.gethostname())#ConfigurationManager.get_configuration().get_gossip_host()
+    configuration = Configuration(configuration_file)    
+    host_ip =  socket.gethostbyname(socket.gethostname())
     server_ip = str(dns.resolver.resolve_address(host_ip).rrset[0]).split('.')[0]
-    server_port = ConfigurationManager.get_configuration().get_gossip_port()
+    server_port = configuration.get_gossip_port()
     
     
     node = ProviderNode()
