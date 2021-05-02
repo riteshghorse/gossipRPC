@@ -75,6 +75,11 @@ class Node(object):
     def acceptSyn(self,synDigest, clientIp):
         """
         Author: Shreyas M
+
+        :param synDigest: List of IPs that the sender knows
+        :param clientIP: sender IP
+
+        Sends out the accept ACK along with delta list of nodes it needs the endpoint state map of.
         
         """
         self.message_count += 1
@@ -114,7 +119,12 @@ class Node(object):
     def acceptAck(self, deltaGDigest, deltaEpStateMap, clientIp):
         """
         Author: Shreyas M
+
+        :param deltaGDigest: List of IPs for which client needs the endpoint State map 
+        :param deltaEpStateMap: List of endpoint statemap of IPs that I don't know.
+        :param clientIP: sender IP
         
+        Sends back the endpoint statempa of the requested IPs
         """
         print('\nIn Accept ACK')
         self.message_count += 1
@@ -160,6 +170,11 @@ class Node(object):
     def acceptAck2(self, deltaEpStateMap, clientIp):
         """
         Author: Shreyas M
+
+        :param deltaEpStateMap: List of endpoint statemap of IPs that I don't know.
+        :param clientIP: sender IP
+
+        Updates my own end point statemap as suggested by client IP
         
         """
         print('\n in Accept Ack 2')
@@ -235,6 +250,12 @@ class Node(object):
     def initiateRRGossip(self): 
         """
         Author: Shreyas M
+
+        Implementation of Round Robin Gossip Algorithm
+
+        It keeps track of the node list and gossips based on the index of list in each round in round robin fashion.
+        rr_index provides the index to gossip in each round
+
         """
         if self.rr_index == 0:
             self.rr_list = copy.deepcopy(self.gDigestList)
@@ -259,6 +280,8 @@ class Node(object):
         else:
             print('------> Initiate Handshake for: '+ip)
             self.sendSYN(ip)
+
+        # Update to rr_index for the key list based on the round robin algorithm.
         self.rr_index =  (self.rr_index + 1) % len(self.rr_list)
 
     def initiateBinaryRRGossip(self):     
@@ -299,6 +322,12 @@ class Node(object):
     def initiateSCRRGossip(self):
         """
         Author: Shreyas M
+
+        It keeps track of the node list and gossips based on the index of list in each round in round robin fashion.
+        rr_index provides the index to gossip in each round
+
+        On the receive gossip side it expects the gossip from specfic rr_index node if thats not received then it marks 
+        the node as potential failure. Shares this information with the monitor node.
         
         """
         if len(self.rr_list)==0 or self.rr_index ==  self.sc_index:
@@ -307,6 +336,7 @@ class Node(object):
             self.rr_index = (self.sc_index + 1) % len(self.rr_list)
 
         from gossip_server import scheduleGossip, scheduler
+        # Update to rr_index for the rr list from provider based on the round robin algorithm.
         self.rr_round = (self.rr_index - self.sc_index + len(self.rr_list))%len(self.rr_list)
         
         self.message_count += 1

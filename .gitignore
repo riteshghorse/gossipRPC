@@ -2,3 +2,7 @@ __pycache__/
 env/
 .vscode/
 *.pyc
+.bash_history
+Desktop
+LauncherFolder
+MyDocuments

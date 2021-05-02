@@ -127,12 +127,12 @@ docker stop $(docker ps --filter status=running -q)
 
 ```
 sudo docker exec -u root -it monitor-node /bin/bash
-python Monitoring_Node.py --config config/monitor.json
+python Monitoring_Node.py --config config_files/monitor.json
 ```
 
 ```
 sudo docker exec -it provider-node /bin/bash
-python Provider_Node.py --config config/provider.json --version random
+python Provider_Node.py --config config_files/provider.json --version random
 ```
 
 ```
