@@ -140,7 +140,7 @@ sudo docker exec -u root -it node1 /bin/bash
 python gossip_server.py --config config/config1.json
 
 ```
-collect
+
 ```
 sudo docker exec -u root -it node2 /bin/bash
 python gossip_server.py --config config/config2.json
@@ -149,12 +149,12 @@ python gossip_server.py --config config/config2.json
 
 ```
 sudo docker exec -u root -it gossiprpc_node_3 /bin/bash
-python gossip_node.py 
+python gossip_server.py 
 ```
 
 ```
 sudo docker exec -u root -it gossiprpc_node_4 /bin/bash
-python gossip_node.py 
+python gossip_server.py 
 ```
 
 ```
