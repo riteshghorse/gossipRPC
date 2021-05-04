@@ -229,6 +229,9 @@ if __name__ == "__main__":
     # ConfigurationManager.reset_configuration()
     configuration = Configuration(configuration_file)
     # Author: Tanvi P
+    '''
+    Configuring the nodes to pickup their ip and ports from respective hostnames and also resolve dns for the other hosts in the network
+    '''
     host_ip =  socket.gethostbyname(socket.gethostname())
     server_ip = str(dns.resolver.resolve_address(host_ip).rrset[0]).split('.')[0]
     server_port = configuration.get_gossip_port()

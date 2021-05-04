@@ -223,6 +223,11 @@ class Node(object):
     def initiateRandomGossip(self):
         """
         Author: Tanvi P
+        :params None
+
+        Create a copy of the gossipList with each node and randomly select a single node to send gossip.
+        Initiate a gossip with the randomly selected node
+
         """
         digestList = copy.deepcopy(self.gDigestList)
 
@@ -359,6 +364,10 @@ class Node(object):
     def startGossip(self, gossip_protocol):
         """
         Author: Tanvi P
+        
+        Making a single application run multiple protocols via command line argument
+        :param gossip_protocol: Type of protocol to run
+        :return: returns nothing
         
         """
         if gossip_protocol == Constants.RANDOM_GOSSIP:
