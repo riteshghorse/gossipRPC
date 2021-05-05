@@ -33,7 +33,6 @@ class Node(object):
         self.app_state = {"IP_Port": str(host)+':'+str(port) , "App_version": Constants.APP_VERSION_DEFAULT, "App_status": Constants.STATUS_NORMAL}
         self.endpoint_state_map = {self.app_state["IP_Port"]: {'heartBeat': self.heart_beat_state, 'appState':self.app_state, 'last_updated_time': getTimeStamp()}}
         self.gDigestList = {self.app_state['IP_Port'] : [self.app_state['App_version'], self.heart_beat_state['generation'], self.heart_beat_state['heartBeatValue']]} 
-        #{IP_Port:{'heartBeat':[version, generation], 'appState':[]}
                 
         self.fault_vector = {self.ip:0}  
         self.live_nodes = list(self.ip)
@@ -223,6 +222,11 @@ class Node(object):
     def initiateRandomGossip(self):
         """
         Author: Tanvi P
+        :params None
+
+        Create a copy of the gossipList with each node and randomly select a single node to send gossip.
+        Initiate a gossip with the randomly selected node
+
         """
         digestList = copy.deepcopy(self.gDigestList)
 
@@ -359,6 +363,10 @@ class Node(object):
     def startGossip(self, gossip_protocol):
         """
         Author: Tanvi P
+        
+        Making a single application run multiple protocols via command line argument
+        :param gossip_protocol: Type of protocol to run
+        :return: returns nothing
         
         """
         if gossip_protocol == Constants.RANDOM_GOSSIP:

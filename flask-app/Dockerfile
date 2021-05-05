@@ -1,4 +1,6 @@
 # Author: Tanvi P
+# Docker file for setting up the flask server in a isolated(virtual env) and containerized environment
+
 FROM python:3.8-slim-buster
 
 WORKDIR /app

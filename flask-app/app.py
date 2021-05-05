@@ -1,4 +1,7 @@
 # Author: Tanvi P
+'''
+Flask server which serves as a backend for displaying the test results and give meta information about the network currently running
+'''
 
 from flask import Flask
 import xmlrpc.client
