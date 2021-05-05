@@ -1,3 +1,8 @@
+"""
+Author: Ritesh G
+
+Methods to initialize the generation, return timestamp and difference in timestamp.
+"""
 import datetime
 
 def getCurrentGeneration():

@@ -10,6 +10,14 @@ class Ack2VerbHandler(object):
         self.node = arg
 
     def updateEpStateMap(self, deltaEpStateMap, clientIp):
+        """
+        Authors: Shreyas M
+        :param deltaEpStateMap:     Provides the endpoint state map for nodes that I don't have
+        :param clientIp:    IP of sender node
+
+        Updates values for meta-app state in endpoint state map and gossip digest list. No action required for the self node.
+        """
+
         for ip, epState in deltaEpStateMap.items():
             #update by comparing which has the latest heartbeat
             if ip == self.node.ip:

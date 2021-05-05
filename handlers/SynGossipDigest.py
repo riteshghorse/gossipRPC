@@ -1,3 +1,8 @@
+"""
+Author: Shreyas M
+
+A common method for sending sync messages.
+"""
 class SynGossipDigest(object):
 
     def __init__(self, clusterId, gDigestList):
