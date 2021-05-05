@@ -1,0 +1,470 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module rpc_config</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>rpc_config</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/ritesh/gossipRPC/gossip_rpc/rpc_config.py">/home/ritesh/gossipRPC/gossip_rpc/rpc_config.py</a></font></td></tr></table>
+    <p><tt>Basic&nbsp;XML&nbsp;RPC&nbsp;setup</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="os.html">os</a><br>
+<a href="xmlrpc.server.html">xmlrpc.server</a><br>
+</td><td width="25%" valign=top><a href="socket.html">socket</a><br>
+<a href="socketserver.html">socketserver</a><br>
+</td><td width="25%" valign=top><a href="threading.html">threading</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="builtins.html#object">builtins.object</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="rpc_config.html#XMLRPCGossipManager">XMLRPCGossipManager</a>
+</font></dt></dl>
+</dd>
+<dt><font face="helvetica, arial"><a href="socketserver.html#ThreadingMixIn">socketserver.ThreadingMixIn</a>(<a href="builtins.html#object">builtins.object</a>)
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="rpc_config.html#AsyncXMLRPCServer">AsyncXMLRPCServer</a>(<a href="socketserver.html#ThreadingMixIn">socketserver.ThreadingMixIn</a>, <a href="xmlrpc.server.html#SimpleXMLRPCServer">xmlrpc.server.SimpleXMLRPCServer</a>)
+</font></dt></dl>
+</dd>
+<dt><font face="helvetica, arial"><a href="xmlrpc.server.html#SimpleXMLRPCRequestHandler">xmlrpc.server.SimpleXMLRPCRequestHandler</a>(<a href="http.server.html#BaseHTTPRequestHandler">http.server.BaseHTTPRequestHandler</a>)
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="rpc_config.html#GossipRPCRequestHandler">GossipRPCRequestHandler</a>
+</font></dt></dl>
+</dd>
+<dt><font face="helvetica, arial"><a href="xmlrpc.server.html#SimpleXMLRPCServer">xmlrpc.server.SimpleXMLRPCServer</a>(<a href="socketserver.html#TCPServer">socketserver.TCPServer</a>, <a href="xmlrpc.server.html#SimpleXMLRPCDispatcher">xmlrpc.server.SimpleXMLRPCDispatcher</a>)
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="rpc_config.html#AsyncXMLRPCServer">AsyncXMLRPCServer</a>(<a href="socketserver.html#ThreadingMixIn">socketserver.ThreadingMixIn</a>, <a href="xmlrpc.server.html#SimpleXMLRPCServer">xmlrpc.server.SimpleXMLRPCServer</a>)
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="AsyncXMLRPCServer">class <strong>AsyncXMLRPCServer</strong></a>(<a href="socketserver.html#ThreadingMixIn">socketserver.ThreadingMixIn</a>, <a href="xmlrpc.server.html#SimpleXMLRPCServer">xmlrpc.server.SimpleXMLRPCServer</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Mix-in&nbsp;class&nbsp;to&nbsp;handle&nbsp;each&nbsp;request&nbsp;in&nbsp;a&nbsp;new&nbsp;thread.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="rpc_config.html#AsyncXMLRPCServer">AsyncXMLRPCServer</a></dd>
+<dd><a href="socketserver.html#ThreadingMixIn">socketserver.ThreadingMixIn</a></dd>
+<dd><a href="xmlrpc.server.html#SimpleXMLRPCServer">xmlrpc.server.SimpleXMLRPCServer</a></dd>
+<dd><a href="socketserver.html#TCPServer">socketserver.TCPServer</a></dd>
+<dd><a href="socketserver.html#BaseServer">socketserver.BaseServer</a></dd>
+<dd><a href="xmlrpc.server.html#SimpleXMLRPCDispatcher">xmlrpc.server.SimpleXMLRPCDispatcher</a></dd>
+<dd><a href="builtins.html#object">builtins.object</a></dd>
+</dl>
+<hr>
+Methods inherited from <a href="socketserver.html#ThreadingMixIn">socketserver.ThreadingMixIn</a>:<br>
+<dl><dt><a name="AsyncXMLRPCServer-process_request"><strong>process_request</strong></a>(self, request, client_address)</dt><dd><tt>Start&nbsp;a&nbsp;new&nbsp;thread&nbsp;to&nbsp;process&nbsp;the&nbsp;request.</tt></dd></dl>
+
+<dl><dt><a name="AsyncXMLRPCServer-process_request_thread"><strong>process_request_thread</strong></a>(self, request, client_address)</dt><dd><tt>Same&nbsp;as&nbsp;in&nbsp;BaseServer&nbsp;but&nbsp;as&nbsp;a&nbsp;thread.<br>
+&nbsp;<br>
+In&nbsp;addition,&nbsp;exception&nbsp;handling&nbsp;is&nbsp;done&nbsp;here.</tt></dd></dl>
+
+<dl><dt><a name="AsyncXMLRPCServer-server_close"><strong>server_close</strong></a>(self)</dt></dl>
+
+<hr>
+Data descriptors inherited from <a href="socketserver.html#ThreadingMixIn">socketserver.ThreadingMixIn</a>:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<hr>
+Data and other attributes inherited from <a href="socketserver.html#ThreadingMixIn">socketserver.ThreadingMixIn</a>:<br>
+<dl><dt><strong>daemon_threads</strong> = False</dl>
+
+<hr>
+Methods inherited from <a href="xmlrpc.server.html#SimpleXMLRPCServer">xmlrpc.server.SimpleXMLRPCServer</a>:<br>
+<dl><dt><a name="AsyncXMLRPCServer-__init__"><strong>__init__</strong></a>(self, addr, requestHandler=&lt;class 'xmlrpc.server.SimpleXMLRPCRequestHandler'&gt;, logRequests=True, allow_none=False, encoding=None, bind_and_activate=True, use_builtin_types=False)</dt><dd><tt>Constructor.&nbsp;&nbsp;May&nbsp;be&nbsp;extended,&nbsp;do&nbsp;not&nbsp;override.</tt></dd></dl>
+
+<hr>
+Data and other attributes inherited from <a href="xmlrpc.server.html#SimpleXMLRPCServer">xmlrpc.server.SimpleXMLRPCServer</a>:<br>
+<dl><dt><strong>allow_reuse_address</strong> = True</dl>
+
+<hr>
+Methods inherited from <a href="socketserver.html#TCPServer">socketserver.TCPServer</a>:<br>
+<dl><dt><a name="AsyncXMLRPCServer-close_request"><strong>close_request</strong></a>(self, request)</dt><dd><tt>Called&nbsp;to&nbsp;clean&nbsp;up&nbsp;an&nbsp;individual&nbsp;request.</tt></dd></dl>
+
+<dl><dt><a name="AsyncXMLRPCServer-fileno"><strong>fileno</strong></a>(self)</dt><dd><tt>Return&nbsp;socket&nbsp;file&nbsp;number.<br>
+&nbsp;<br>
+Interface&nbsp;required&nbsp;by&nbsp;selector.</tt></dd></dl>
+
+<dl><dt><a name="AsyncXMLRPCServer-get_request"><strong>get_request</strong></a>(self)</dt><dd><tt>Get&nbsp;the&nbsp;request&nbsp;and&nbsp;client&nbsp;address&nbsp;from&nbsp;the&nbsp;socket.<br>
+&nbsp;<br>
+May&nbsp;be&nbsp;overridden.</tt></dd></dl>
+
+<dl><dt><a name="AsyncXMLRPCServer-server_activate"><strong>server_activate</strong></a>(self)</dt><dd><tt>Called&nbsp;by&nbsp;constructor&nbsp;to&nbsp;activate&nbsp;the&nbsp;server.<br>
+&nbsp;<br>
+May&nbsp;be&nbsp;overridden.</tt></dd></dl>
+
+<dl><dt><a name="AsyncXMLRPCServer-server_bind"><strong>server_bind</strong></a>(self)</dt><dd><tt>Called&nbsp;by&nbsp;constructor&nbsp;to&nbsp;bind&nbsp;the&nbsp;socket.<br>
+&nbsp;<br>
+May&nbsp;be&nbsp;overridden.</tt></dd></dl>
+
+<dl><dt><a name="AsyncXMLRPCServer-shutdown_request"><strong>shutdown_request</strong></a>(self, request)</dt><dd><tt>Called&nbsp;to&nbsp;shutdown&nbsp;and&nbsp;close&nbsp;an&nbsp;individual&nbsp;request.</tt></dd></dl>
+
+<hr>
+Data and other attributes inherited from <a href="socketserver.html#TCPServer">socketserver.TCPServer</a>:<br>
+<dl><dt><strong>address_family</strong> = &lt;AddressFamily.AF_INET: 2&gt;</dl>
+
+<dl><dt><strong>request_queue_size</strong> = 5</dl>
+
+<dl><dt><strong>socket_type</strong> = &lt;SocketKind.SOCK_STREAM: 1&gt;</dl>
+
+<hr>
+Methods inherited from <a href="socketserver.html#BaseServer">socketserver.BaseServer</a>:<br>
+<dl><dt><a name="AsyncXMLRPCServer-__enter__"><strong>__enter__</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="AsyncXMLRPCServer-__exit__"><strong>__exit__</strong></a>(self, *args)</dt></dl>
+
+<dl><dt><a name="AsyncXMLRPCServer-finish_request"><strong>finish_request</strong></a>(self, request, client_address)</dt><dd><tt>Finish&nbsp;one&nbsp;request&nbsp;by&nbsp;instantiating&nbsp;RequestHandlerClass.</tt></dd></dl>
+
+<dl><dt><a name="AsyncXMLRPCServer-handle_error"><strong>handle_error</strong></a>(self, request, client_address)</dt><dd><tt>Handle&nbsp;an&nbsp;error&nbsp;gracefully.&nbsp;&nbsp;May&nbsp;be&nbsp;overridden.<br>
+&nbsp;<br>
+The&nbsp;default&nbsp;is&nbsp;to&nbsp;print&nbsp;a&nbsp;traceback&nbsp;and&nbsp;continue.</tt></dd></dl>
+
+<dl><dt><a name="AsyncXMLRPCServer-handle_request"><strong>handle_request</strong></a>(self)</dt><dd><tt>Handle&nbsp;one&nbsp;request,&nbsp;possibly&nbsp;blocking.<br>
+&nbsp;<br>
+Respects&nbsp;self.<strong>timeout</strong>.</tt></dd></dl>
+
+<dl><dt><a name="AsyncXMLRPCServer-handle_timeout"><strong>handle_timeout</strong></a>(self)</dt><dd><tt>Called&nbsp;if&nbsp;no&nbsp;new&nbsp;request&nbsp;arrives&nbsp;within&nbsp;self.<strong>timeout</strong>.<br>
+&nbsp;<br>
+Overridden&nbsp;by&nbsp;ForkingMixIn.</tt></dd></dl>
+
+<dl><dt><a name="AsyncXMLRPCServer-serve_forever"><strong>serve_forever</strong></a>(self, poll_interval=0.5)</dt><dd><tt>Handle&nbsp;one&nbsp;request&nbsp;at&nbsp;a&nbsp;time&nbsp;until&nbsp;shutdown.<br>
+&nbsp;<br>
+Polls&nbsp;for&nbsp;shutdown&nbsp;every&nbsp;poll_interval&nbsp;seconds.&nbsp;Ignores<br>
+self.<strong>timeout</strong>.&nbsp;If&nbsp;you&nbsp;need&nbsp;to&nbsp;do&nbsp;periodic&nbsp;tasks,&nbsp;do&nbsp;them&nbsp;in<br>
+another&nbsp;thread.</tt></dd></dl>
+
+<dl><dt><a name="AsyncXMLRPCServer-service_actions"><strong>service_actions</strong></a>(self)</dt><dd><tt>Called&nbsp;by&nbsp;the&nbsp;<a href="#AsyncXMLRPCServer-serve_forever">serve_forever</a>()&nbsp;loop.<br>
+&nbsp;<br>
+May&nbsp;be&nbsp;overridden&nbsp;by&nbsp;a&nbsp;subclass&nbsp;/&nbsp;Mixin&nbsp;to&nbsp;implement&nbsp;any&nbsp;code&nbsp;that<br>
+needs&nbsp;to&nbsp;be&nbsp;run&nbsp;during&nbsp;the&nbsp;loop.</tt></dd></dl>
+
+<dl><dt><a name="AsyncXMLRPCServer-shutdown"><strong>shutdown</strong></a>(self)</dt><dd><tt>Stops&nbsp;the&nbsp;serve_forever&nbsp;loop.<br>
+&nbsp;<br>
+Blocks&nbsp;until&nbsp;the&nbsp;loop&nbsp;has&nbsp;finished.&nbsp;This&nbsp;must&nbsp;be&nbsp;called&nbsp;while<br>
+<a href="#AsyncXMLRPCServer-serve_forever">serve_forever</a>()&nbsp;is&nbsp;running&nbsp;in&nbsp;another&nbsp;thread,&nbsp;or&nbsp;it&nbsp;will<br>
+deadlock.</tt></dd></dl>
+
+<dl><dt><a name="AsyncXMLRPCServer-verify_request"><strong>verify_request</strong></a>(self, request, client_address)</dt><dd><tt>Verify&nbsp;the&nbsp;request.&nbsp;&nbsp;May&nbsp;be&nbsp;overridden.<br>
+&nbsp;<br>
+Return&nbsp;True&nbsp;if&nbsp;we&nbsp;should&nbsp;proceed&nbsp;with&nbsp;this&nbsp;request.</tt></dd></dl>
+
+<hr>
+Data and other attributes inherited from <a href="socketserver.html#BaseServer">socketserver.BaseServer</a>:<br>
+<dl><dt><strong>timeout</strong> = None</dl>
+
+<hr>
+Methods inherited from <a href="xmlrpc.server.html#SimpleXMLRPCDispatcher">xmlrpc.server.SimpleXMLRPCDispatcher</a>:<br>
+<dl><dt><a name="AsyncXMLRPCServer-register_function"><strong>register_function</strong></a>(self, function, name=None)</dt><dd><tt>Registers&nbsp;a&nbsp;function&nbsp;to&nbsp;respond&nbsp;to&nbsp;XML-RPC&nbsp;requests.<br>
+&nbsp;<br>
+The&nbsp;optional&nbsp;name&nbsp;argument&nbsp;can&nbsp;be&nbsp;used&nbsp;to&nbsp;set&nbsp;a&nbsp;Unicode&nbsp;name<br>
+for&nbsp;the&nbsp;function.</tt></dd></dl>
+
+<dl><dt><a name="AsyncXMLRPCServer-register_instance"><strong>register_instance</strong></a>(self, instance, allow_dotted_names=False)</dt><dd><tt>Registers&nbsp;an&nbsp;instance&nbsp;to&nbsp;respond&nbsp;to&nbsp;XML-RPC&nbsp;requests.<br>
+&nbsp;<br>
+Only&nbsp;one&nbsp;instance&nbsp;can&nbsp;be&nbsp;installed&nbsp;at&nbsp;a&nbsp;time.<br>
+&nbsp;<br>
+If&nbsp;the&nbsp;registered&nbsp;instance&nbsp;has&nbsp;a&nbsp;_dispatch&nbsp;method&nbsp;then&nbsp;that<br>
+method&nbsp;will&nbsp;be&nbsp;called&nbsp;with&nbsp;the&nbsp;name&nbsp;of&nbsp;the&nbsp;XML-RPC&nbsp;method&nbsp;and<br>
+its&nbsp;parameters&nbsp;as&nbsp;a&nbsp;tuple<br>
+e.g.&nbsp;instance._dispatch('add',(2,3))<br>
+&nbsp;<br>
+If&nbsp;the&nbsp;registered&nbsp;instance&nbsp;does&nbsp;not&nbsp;have&nbsp;a&nbsp;_dispatch&nbsp;method<br>
+then&nbsp;the&nbsp;instance&nbsp;will&nbsp;be&nbsp;searched&nbsp;to&nbsp;find&nbsp;a&nbsp;matching&nbsp;method<br>
+and,&nbsp;if&nbsp;found,&nbsp;will&nbsp;be&nbsp;called.&nbsp;Methods&nbsp;beginning&nbsp;with&nbsp;an&nbsp;'_'<br>
+are&nbsp;considered&nbsp;private&nbsp;and&nbsp;will&nbsp;not&nbsp;be&nbsp;called&nbsp;by<br>
+<a href="xmlrpc.server.html#SimpleXMLRPCServer">SimpleXMLRPCServer</a>.<br>
+&nbsp;<br>
+If&nbsp;a&nbsp;registered&nbsp;function&nbsp;matches&nbsp;an&nbsp;XML-RPC&nbsp;request,&nbsp;then&nbsp;it<br>
+will&nbsp;be&nbsp;called&nbsp;instead&nbsp;of&nbsp;the&nbsp;registered&nbsp;instance.<br>
+&nbsp;<br>
+If&nbsp;the&nbsp;optional&nbsp;allow_dotted_names&nbsp;argument&nbsp;is&nbsp;true&nbsp;and&nbsp;the<br>
+instance&nbsp;does&nbsp;not&nbsp;have&nbsp;a&nbsp;_dispatch&nbsp;method,&nbsp;method&nbsp;names<br>
+containing&nbsp;dots&nbsp;are&nbsp;supported&nbsp;and&nbsp;resolved,&nbsp;as&nbsp;long&nbsp;as&nbsp;none&nbsp;of<br>
+the&nbsp;name&nbsp;segments&nbsp;start&nbsp;with&nbsp;an&nbsp;'_'.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;***&nbsp;SECURITY&nbsp;WARNING:&nbsp;***<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Enabling&nbsp;the&nbsp;allow_dotted_names&nbsp;options&nbsp;allows&nbsp;intruders<br>
+&nbsp;&nbsp;&nbsp;&nbsp;to&nbsp;access&nbsp;your&nbsp;module's&nbsp;global&nbsp;variables&nbsp;and&nbsp;may&nbsp;allow<br>
+&nbsp;&nbsp;&nbsp;&nbsp;intruders&nbsp;to&nbsp;execute&nbsp;arbitrary&nbsp;code&nbsp;on&nbsp;your&nbsp;machine.&nbsp;&nbsp;Only<br>
+&nbsp;&nbsp;&nbsp;&nbsp;use&nbsp;this&nbsp;option&nbsp;on&nbsp;a&nbsp;secure,&nbsp;closed&nbsp;network.</tt></dd></dl>
+
+<dl><dt><a name="AsyncXMLRPCServer-register_introspection_functions"><strong>register_introspection_functions</strong></a>(self)</dt><dd><tt>Registers&nbsp;the&nbsp;XML-RPC&nbsp;introspection&nbsp;methods&nbsp;in&nbsp;the&nbsp;system<br>
+namespace.<br>
+&nbsp;<br>
+see&nbsp;<a href="http://xmlrpc.usefulinc.com/doc/reserved.html">http://xmlrpc.usefulinc.com/doc/reserved.html</a></tt></dd></dl>
+
+<dl><dt><a name="AsyncXMLRPCServer-register_multicall_functions"><strong>register_multicall_functions</strong></a>(self)</dt><dd><tt>Registers&nbsp;the&nbsp;XML-RPC&nbsp;multicall&nbsp;method&nbsp;in&nbsp;the&nbsp;system<br>
+namespace.<br>
+&nbsp;<br>
+see&nbsp;<a href="http://www.xmlrpc.com/discuss/msgReader$1208">http://www.xmlrpc.com/discuss/msgReader$1208</a></tt></dd></dl>
+
+<dl><dt><a name="AsyncXMLRPCServer-system_listMethods"><strong>system_listMethods</strong></a>(self)</dt><dd><tt>system.listMethods()&nbsp;=&gt;&nbsp;['add',&nbsp;'subtract',&nbsp;'multiple']<br>
+&nbsp;<br>
+Returns&nbsp;a&nbsp;list&nbsp;of&nbsp;the&nbsp;methods&nbsp;supported&nbsp;by&nbsp;the&nbsp;server.</tt></dd></dl>
+
+<dl><dt><a name="AsyncXMLRPCServer-system_methodHelp"><strong>system_methodHelp</strong></a>(self, method_name)</dt><dd><tt>system.methodHelp('add')&nbsp;=&gt;&nbsp;"Adds&nbsp;two&nbsp;integers&nbsp;together"<br>
+&nbsp;<br>
+Returns&nbsp;a&nbsp;string&nbsp;containing&nbsp;documentation&nbsp;for&nbsp;the&nbsp;specified&nbsp;method.</tt></dd></dl>
+
+<dl><dt><a name="AsyncXMLRPCServer-system_methodSignature"><strong>system_methodSignature</strong></a>(self, method_name)</dt><dd><tt>system.methodSignature('add')&nbsp;=&gt;&nbsp;[double,&nbsp;int,&nbsp;int]<br>
+&nbsp;<br>
+Returns&nbsp;a&nbsp;list&nbsp;describing&nbsp;the&nbsp;signature&nbsp;of&nbsp;the&nbsp;method.&nbsp;In&nbsp;the<br>
+above&nbsp;example,&nbsp;the&nbsp;add&nbsp;method&nbsp;takes&nbsp;two&nbsp;integers&nbsp;as&nbsp;arguments<br>
+and&nbsp;returns&nbsp;a&nbsp;double&nbsp;result.<br>
+&nbsp;<br>
+This&nbsp;server&nbsp;does&nbsp;NOT&nbsp;support&nbsp;system.methodSignature.</tt></dd></dl>
+
+<dl><dt><a name="AsyncXMLRPCServer-system_multicall"><strong>system_multicall</strong></a>(self, call_list)</dt><dd><tt>system.multicall([{'methodName':&nbsp;'add',&nbsp;'params':&nbsp;[2,&nbsp;2]},&nbsp;...])&nbsp;=&gt;&nbsp;[[4],&nbsp;...]<br>
+&nbsp;<br>
+Allows&nbsp;the&nbsp;caller&nbsp;to&nbsp;package&nbsp;multiple&nbsp;XML-RPC&nbsp;calls&nbsp;into&nbsp;a&nbsp;single<br>
+request.<br>
+&nbsp;<br>
+See&nbsp;<a href="http://www.xmlrpc.com/discuss/msgReader$1208">http://www.xmlrpc.com/discuss/msgReader$1208</a></tt></dd></dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="GossipRPCRequestHandler">class <strong>GossipRPCRequestHandler</strong></a>(<a href="xmlrpc.server.html#SimpleXMLRPCRequestHandler">xmlrpc.server.SimpleXMLRPCRequestHandler</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Paths&nbsp;should&nbsp;end&nbsp;in&nbsp;these&nbsp;ways&nbsp;for&nbsp;RPC&nbsp;requests&nbsp;to&nbsp;handle&nbsp;it&nbsp;correctly.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="rpc_config.html#GossipRPCRequestHandler">GossipRPCRequestHandler</a></dd>
+<dd><a href="xmlrpc.server.html#SimpleXMLRPCRequestHandler">xmlrpc.server.SimpleXMLRPCRequestHandler</a></dd>
+<dd><a href="http.server.html#BaseHTTPRequestHandler">http.server.BaseHTTPRequestHandler</a></dd>
+<dd><a href="socketserver.html#StreamRequestHandler">socketserver.StreamRequestHandler</a></dd>
+<dd><a href="socketserver.html#BaseRequestHandler">socketserver.BaseRequestHandler</a></dd>
+<dd><a href="builtins.html#object">builtins.object</a></dd>
+</dl>
+<hr>
+Data and other attributes defined here:<br>
+<dl><dt><strong>rpc_paths</strong> = ('/', '/RPC2')</dl>
+
+<hr>
+Methods inherited from <a href="xmlrpc.server.html#SimpleXMLRPCRequestHandler">xmlrpc.server.SimpleXMLRPCRequestHandler</a>:<br>
+<dl><dt><a name="GossipRPCRequestHandler-accept_encodings"><strong>accept_encodings</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="GossipRPCRequestHandler-decode_request_content"><strong>decode_request_content</strong></a>(self, data)</dt></dl>
+
+<dl><dt><a name="GossipRPCRequestHandler-do_POST"><strong>do_POST</strong></a>(self)</dt><dd><tt>Handles&nbsp;the&nbsp;HTTP&nbsp;POST&nbsp;request.<br>
+&nbsp;<br>
+Attempts&nbsp;to&nbsp;interpret&nbsp;all&nbsp;HTTP&nbsp;POST&nbsp;requests&nbsp;as&nbsp;XML-RPC&nbsp;calls,<br>
+which&nbsp;are&nbsp;forwarded&nbsp;to&nbsp;the&nbsp;server's&nbsp;_dispatch&nbsp;method&nbsp;for&nbsp;handling.</tt></dd></dl>
+
+<dl><dt><a name="GossipRPCRequestHandler-is_rpc_path_valid"><strong>is_rpc_path_valid</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="GossipRPCRequestHandler-log_request"><strong>log_request</strong></a>(self, code='-', size='-')</dt><dd><tt>Selectively&nbsp;log&nbsp;an&nbsp;accepted&nbsp;request.</tt></dd></dl>
+
+<dl><dt><a name="GossipRPCRequestHandler-report_404"><strong>report_404</strong></a>(self)</dt></dl>
+
+<hr>
+Data and other attributes inherited from <a href="xmlrpc.server.html#SimpleXMLRPCRequestHandler">xmlrpc.server.SimpleXMLRPCRequestHandler</a>:<br>
+<dl><dt><strong>aepattern</strong> = re.compile('\n                            \\s* (...                     ', re.IGNORECASE|re.VERBOSE)</dl>
+
+<dl><dt><strong>disable_nagle_algorithm</strong> = True</dl>
+
+<dl><dt><strong>encode_threshold</strong> = 1400</dl>
+
+<dl><dt><strong>wbufsize</strong> = -1</dl>
+
+<hr>
+Methods inherited from <a href="http.server.html#BaseHTTPRequestHandler">http.server.BaseHTTPRequestHandler</a>:<br>
+<dl><dt><a name="GossipRPCRequestHandler-address_string"><strong>address_string</strong></a>(self)</dt><dd><tt>Return&nbsp;the&nbsp;client&nbsp;address.</tt></dd></dl>
+
+<dl><dt><a name="GossipRPCRequestHandler-date_time_string"><strong>date_time_string</strong></a>(self, timestamp=None)</dt><dd><tt>Return&nbsp;the&nbsp;current&nbsp;date&nbsp;and&nbsp;time&nbsp;formatted&nbsp;for&nbsp;a&nbsp;message&nbsp;header.</tt></dd></dl>
+
+<dl><dt><a name="GossipRPCRequestHandler-end_headers"><strong>end_headers</strong></a>(self)</dt><dd><tt>Send&nbsp;the&nbsp;blank&nbsp;line&nbsp;ending&nbsp;the&nbsp;MIME&nbsp;headers.</tt></dd></dl>
+
+<dl><dt><a name="GossipRPCRequestHandler-flush_headers"><strong>flush_headers</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="GossipRPCRequestHandler-handle"><strong>handle</strong></a>(self)</dt><dd><tt>Handle&nbsp;multiple&nbsp;requests&nbsp;if&nbsp;necessary.</tt></dd></dl>
+
+<dl><dt><a name="GossipRPCRequestHandler-handle_expect_100"><strong>handle_expect_100</strong></a>(self)</dt><dd><tt>Decide&nbsp;what&nbsp;to&nbsp;do&nbsp;with&nbsp;an&nbsp;"Expect:&nbsp;100-continue"&nbsp;header.<br>
+&nbsp;<br>
+If&nbsp;the&nbsp;client&nbsp;is&nbsp;expecting&nbsp;a&nbsp;100&nbsp;Continue&nbsp;response,&nbsp;we&nbsp;must<br>
+respond&nbsp;with&nbsp;either&nbsp;a&nbsp;100&nbsp;Continue&nbsp;or&nbsp;a&nbsp;final&nbsp;response&nbsp;before<br>
+waiting&nbsp;for&nbsp;the&nbsp;request&nbsp;body.&nbsp;The&nbsp;default&nbsp;is&nbsp;to&nbsp;always&nbsp;respond<br>
+with&nbsp;a&nbsp;100&nbsp;Continue.&nbsp;You&nbsp;can&nbsp;behave&nbsp;differently&nbsp;(for&nbsp;example,<br>
+reject&nbsp;unauthorized&nbsp;requests)&nbsp;by&nbsp;overriding&nbsp;this&nbsp;method.<br>
+&nbsp;<br>
+This&nbsp;method&nbsp;should&nbsp;either&nbsp;return&nbsp;True&nbsp;(possibly&nbsp;after&nbsp;sending<br>
+a&nbsp;100&nbsp;Continue&nbsp;response)&nbsp;or&nbsp;send&nbsp;an&nbsp;error&nbsp;response&nbsp;and&nbsp;return<br>
+False.</tt></dd></dl>
+
+<dl><dt><a name="GossipRPCRequestHandler-handle_one_request"><strong>handle_one_request</strong></a>(self)</dt><dd><tt>Handle&nbsp;a&nbsp;single&nbsp;HTTP&nbsp;request.<br>
+&nbsp;<br>
+You&nbsp;normally&nbsp;don't&nbsp;need&nbsp;to&nbsp;override&nbsp;this&nbsp;method;&nbsp;see&nbsp;the&nbsp;class<br>
+__doc__&nbsp;string&nbsp;for&nbsp;information&nbsp;on&nbsp;how&nbsp;to&nbsp;handle&nbsp;specific&nbsp;HTTP<br>
+commands&nbsp;such&nbsp;as&nbsp;GET&nbsp;and&nbsp;POST.</tt></dd></dl>
+
+<dl><dt><a name="GossipRPCRequestHandler-log_date_time_string"><strong>log_date_time_string</strong></a>(self)</dt><dd><tt>Return&nbsp;the&nbsp;current&nbsp;time&nbsp;formatted&nbsp;for&nbsp;logging.</tt></dd></dl>
+
+<dl><dt><a name="GossipRPCRequestHandler-log_error"><strong>log_error</strong></a>(self, format, *args)</dt><dd><tt>Log&nbsp;an&nbsp;error.<br>
+&nbsp;<br>
+This&nbsp;is&nbsp;called&nbsp;when&nbsp;a&nbsp;request&nbsp;cannot&nbsp;be&nbsp;fulfilled.&nbsp;&nbsp;By<br>
+default&nbsp;it&nbsp;passes&nbsp;the&nbsp;message&nbsp;on&nbsp;to&nbsp;<a href="#GossipRPCRequestHandler-log_message">log_message</a>().<br>
+&nbsp;<br>
+Arguments&nbsp;are&nbsp;the&nbsp;same&nbsp;as&nbsp;for&nbsp;<a href="#GossipRPCRequestHandler-log_message">log_message</a>().<br>
+&nbsp;<br>
+XXX&nbsp;This&nbsp;should&nbsp;go&nbsp;to&nbsp;the&nbsp;separate&nbsp;error&nbsp;log.</tt></dd></dl>
+
+<dl><dt><a name="GossipRPCRequestHandler-log_message"><strong>log_message</strong></a>(self, format, *args)</dt><dd><tt>Log&nbsp;an&nbsp;arbitrary&nbsp;message.<br>
+&nbsp;<br>
+This&nbsp;is&nbsp;used&nbsp;by&nbsp;all&nbsp;other&nbsp;logging&nbsp;functions.&nbsp;&nbsp;Override<br>
+it&nbsp;if&nbsp;you&nbsp;have&nbsp;specific&nbsp;logging&nbsp;wishes.<br>
+&nbsp;<br>
+The&nbsp;first&nbsp;argument,&nbsp;FORMAT,&nbsp;is&nbsp;a&nbsp;format&nbsp;string&nbsp;for&nbsp;the<br>
+message&nbsp;to&nbsp;be&nbsp;logged.&nbsp;&nbsp;If&nbsp;the&nbsp;format&nbsp;string&nbsp;contains<br>
+any&nbsp;%&nbsp;escapes&nbsp;requiring&nbsp;parameters,&nbsp;they&nbsp;should&nbsp;be<br>
+specified&nbsp;as&nbsp;subsequent&nbsp;arguments&nbsp;(it's&nbsp;just&nbsp;like<br>
+printf!).<br>
+&nbsp;<br>
+The&nbsp;client&nbsp;ip&nbsp;and&nbsp;current&nbsp;date/time&nbsp;are&nbsp;prefixed&nbsp;to<br>
+every&nbsp;message.</tt></dd></dl>
+
+<dl><dt><a name="GossipRPCRequestHandler-parse_request"><strong>parse_request</strong></a>(self)</dt><dd><tt>Parse&nbsp;a&nbsp;request&nbsp;(internal).<br>
+&nbsp;<br>
+The&nbsp;request&nbsp;should&nbsp;be&nbsp;stored&nbsp;in&nbsp;self.<strong>raw_requestline</strong>;&nbsp;the&nbsp;results<br>
+are&nbsp;in&nbsp;self.<strong>command</strong>,&nbsp;self.<strong>path</strong>,&nbsp;self.<strong>request_version</strong>&nbsp;and<br>
+self.<strong>headers</strong>.<br>
+&nbsp;<br>
+Return&nbsp;True&nbsp;for&nbsp;success,&nbsp;False&nbsp;for&nbsp;failure;&nbsp;on&nbsp;failure,&nbsp;an<br>
+error&nbsp;is&nbsp;sent&nbsp;back.</tt></dd></dl>
+
+<dl><dt><a name="GossipRPCRequestHandler-send_error"><strong>send_error</strong></a>(self, code, message=None, explain=None)</dt><dd><tt>Send&nbsp;and&nbsp;log&nbsp;an&nbsp;error&nbsp;reply.<br>
+&nbsp;<br>
+Arguments&nbsp;are<br>
+*&nbsp;code:&nbsp;&nbsp;&nbsp;&nbsp;an&nbsp;HTTP&nbsp;error&nbsp;code<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;digits<br>
+*&nbsp;message:&nbsp;a&nbsp;simple&nbsp;optional&nbsp;1&nbsp;line&nbsp;reason&nbsp;phrase.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*(&nbsp;HTAB&nbsp;/&nbsp;SP&nbsp;/&nbsp;VCHAR&nbsp;/&nbsp;%x80-FF&nbsp;)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;defaults&nbsp;to&nbsp;short&nbsp;entry&nbsp;matching&nbsp;the&nbsp;response&nbsp;code<br>
+*&nbsp;explain:&nbsp;a&nbsp;detailed&nbsp;message&nbsp;defaults&nbsp;to&nbsp;the&nbsp;long&nbsp;entry<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;matching&nbsp;the&nbsp;response&nbsp;code.<br>
+&nbsp;<br>
+This&nbsp;sends&nbsp;an&nbsp;error&nbsp;response&nbsp;(so&nbsp;it&nbsp;must&nbsp;be&nbsp;called&nbsp;before&nbsp;any<br>
+output&nbsp;has&nbsp;been&nbsp;generated),&nbsp;logs&nbsp;the&nbsp;error,&nbsp;and&nbsp;finally&nbsp;sends<br>
+a&nbsp;piece&nbsp;of&nbsp;HTML&nbsp;explaining&nbsp;the&nbsp;error&nbsp;to&nbsp;the&nbsp;user.</tt></dd></dl>
+
+<dl><dt><a name="GossipRPCRequestHandler-send_header"><strong>send_header</strong></a>(self, keyword, value)</dt><dd><tt>Send&nbsp;a&nbsp;MIME&nbsp;header&nbsp;to&nbsp;the&nbsp;headers&nbsp;buffer.</tt></dd></dl>
+
+<dl><dt><a name="GossipRPCRequestHandler-send_response"><strong>send_response</strong></a>(self, code, message=None)</dt><dd><tt>Add&nbsp;the&nbsp;response&nbsp;header&nbsp;to&nbsp;the&nbsp;headers&nbsp;buffer&nbsp;and&nbsp;log&nbsp;the<br>
+response&nbsp;code.<br>
+&nbsp;<br>
+Also&nbsp;send&nbsp;two&nbsp;standard&nbsp;headers&nbsp;with&nbsp;the&nbsp;server&nbsp;software<br>
+version&nbsp;and&nbsp;the&nbsp;current&nbsp;date.</tt></dd></dl>
+
+<dl><dt><a name="GossipRPCRequestHandler-send_response_only"><strong>send_response_only</strong></a>(self, code, message=None)</dt><dd><tt>Send&nbsp;the&nbsp;response&nbsp;header&nbsp;only.</tt></dd></dl>
+
+<dl><dt><a name="GossipRPCRequestHandler-version_string"><strong>version_string</strong></a>(self)</dt><dd><tt>Return&nbsp;the&nbsp;server&nbsp;software&nbsp;version&nbsp;string.</tt></dd></dl>
+
+<hr>
+Data and other attributes inherited from <a href="http.server.html#BaseHTTPRequestHandler">http.server.BaseHTTPRequestHandler</a>:<br>
+<dl><dt><strong>MessageClass</strong> = &lt;class 'http.client.HTTPMessage'&gt;</dl>
+
+<dl><dt><strong>default_request_version</strong> = 'HTTP/0.9'</dl>
+
+<dl><dt><strong>error_content_type</strong> = 'text/html;charset=utf-8'</dl>
+
+<dl><dt><strong>error_message_format</strong> = '&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN... %(code)s - %(explain)s.&lt;/p&gt;<font color="#c040c0">\n</font>    &lt;/body&gt;<font color="#c040c0">\n</font>&lt;/html&gt;<font color="#c040c0">\n</font>'</dl>
+
+<dl><dt><strong>monthname</strong> = [None, 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']</dl>
+
+<dl><dt><strong>protocol_version</strong> = 'HTTP/1.0'</dl>
+
+<dl><dt><strong>responses</strong> = {&lt;HTTPStatus.CONTINUE: 100&gt;: ('Continue', 'Request received, please continue'), &lt;HTTPStatus.SWITCHING_PROTOCOLS: 101&gt;: ('Switching Protocols', 'Switching to new protocol; obey Upgrade header'), &lt;HTTPStatus.PROCESSING: 102&gt;: ('Processing', ''), &lt;HTTPStatus.OK: 200&gt;: ('OK', 'Request fulfilled, document follows'), &lt;HTTPStatus.CREATED: 201&gt;: ('Created', 'Document created, URL follows'), &lt;HTTPStatus.ACCEPTED: 202&gt;: ('Accepted', 'Request accepted, processing continues off-line'), &lt;HTTPStatus.NON_AUTHORITATIVE_INFORMATION: 203&gt;: ('Non-Authoritative Information', 'Request fulfilled from cache'), &lt;HTTPStatus.NO_CONTENT: 204&gt;: ('No Content', 'Request fulfilled, nothing follows'), &lt;HTTPStatus.RESET_CONTENT: 205&gt;: ('Reset Content', 'Clear input form for further input'), &lt;HTTPStatus.PARTIAL_CONTENT: 206&gt;: ('Partial Content', 'Partial content follows'), ...}</dl>
+
+<dl><dt><strong>server_version</strong> = 'BaseHTTP/0.6'</dl>
+
+<dl><dt><strong>sys_version</strong> = 'Python/3.6.9'</dl>
+
+<dl><dt><strong>weekdayname</strong> = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']</dl>
+
+<hr>
+Methods inherited from <a href="socketserver.html#StreamRequestHandler">socketserver.StreamRequestHandler</a>:<br>
+<dl><dt><a name="GossipRPCRequestHandler-finish"><strong>finish</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="GossipRPCRequestHandler-setup"><strong>setup</strong></a>(self)</dt></dl>
+
+<hr>
+Data and other attributes inherited from <a href="socketserver.html#StreamRequestHandler">socketserver.StreamRequestHandler</a>:<br>
+<dl><dt><strong>rbufsize</strong> = -1</dl>
+
+<dl><dt><strong>timeout</strong> = None</dl>
+
+<hr>
+Methods inherited from <a href="socketserver.html#BaseRequestHandler">socketserver.BaseRequestHandler</a>:<br>
+<dl><dt><a name="GossipRPCRequestHandler-__init__"><strong>__init__</strong></a>(self, request, client_address, server)</dt><dd><tt>Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</tt></dd></dl>
+
+<hr>
+Data descriptors inherited from <a href="socketserver.html#BaseRequestHandler">socketserver.BaseRequestHandler</a>:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="XMLRPCGossipManager">class <strong>XMLRPCGossipManager</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>Overrides&nbsp;normal&nbsp;XMLRPC&nbsp;Manger&nbsp;to&nbsp;use&nbsp;threads&nbsp;and<br>
+allowing&nbsp;None&nbsp;values.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Static methods defined here:<br>
+<dl><dt><a name="XMLRPCGossipManager-get_ip_port"><strong>get_ip_port</strong></a>()</dt></dl>
+
+<dl><dt><a name="XMLRPCGossipManager-start_server"><strong>start_server</strong></a>(gossip_node)</dt></dl>
+
+<dl><dt><a name="XMLRPCGossipManager-stop_server"><strong>stop_server</strong></a>()</dt></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<hr>
+Data and other attributes defined here:<br>
+<dl><dt><strong>server</strong> = None</dl>
+
+<dl><dt><strong>server_thread</strong> = None</dl>
+
+<dl><dt><strong>socket</strong> = &lt;module 'socket' from '/usr/lib/python3.6/socket.py'&gt;</dl>
+
+</td></tr></table></td></tr></table>
+</body></html>

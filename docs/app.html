@@ -8,8 +8,8 @@
 <td valign=bottom>&nbsp;<br>
 <font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>app</strong></big></big></font></td
 ><td align=right valign=bottom
-><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/ritesh/gossipRPC/app.py">/home/ritesh/gossipRPC/app.py</a></font></td></tr></table>
-    <p></p>
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/ritesh/gossipRPC/flask-app/app.py">/home/ritesh/gossipRPC/flask-app/app.py</a></font></td></tr></table>
+    <p><tt>Flask&nbsp;server&nbsp;which&nbsp;serves&nbsp;as&nbsp;a&nbsp;backend&nbsp;for&nbsp;displaying&nbsp;the&nbsp;test&nbsp;results&nbsp;and&nbsp;give&nbsp;meta&nbsp;information&nbsp;about&nbsp;the&nbsp;network&nbsp;currently&nbsp;running</tt></p>
 <p>
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
 <tr bgcolor="#aa55cc">
@@ -17,9 +17,8 @@
 <font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
     
 <tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
-<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="Constants.html">Constants</a><br>
-</td><td width="25%" valign=top><a href="xmlrpc.html">xmlrpc</a><br>
-</td><td width="25%" valign=top></td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="xmlrpc.html">xmlrpc</a><br>
+</td><td width="25%" valign=top></td><td width="25%" valign=top></td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
 <tr bgcolor="#eeaa77">
 <td colspan=3 valign=bottom>&nbsp;<br>
@@ -29,6 +28,7 @@
 <td width="100%"><dl><dt><a name="-fault_vector"><strong>fault_vector</strong></a>()</dt></dl>
  <dl><dt><a name="-hello"><strong>hello</strong></a>()</dt></dl>
  <dl><dt><a name="-show"><strong>show</strong></a>()</dt></dl>
+ <dl><dt><a name="-show_results"><strong>show_results</strong></a>()</dt></dl>
  <dl><dt><a name="-status"><strong>status</strong></a>()</dt></dl>
 </td></tr></table><p>
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
@@ -37,6 +37,7 @@
 <font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
     
 <tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
-<td width="100%"><strong>app</strong> = &lt;Flask 'app'&gt;<br>
-<strong>monitor_client</strong> = &lt;ServerProxy for localhost:8000/RPC2&gt;</td></tr></table>
+<td width="100%"><strong>MONITOR_ADDRESS</strong> = 'monitor-node:8000'<br>
+<strong>app</strong> = &lt;Flask 'app'&gt;<br>
+<strong>monitor_client</strong> = &lt;ServerProxy for monitor-node:8000/RPC2&gt;</td></tr></table>
 </body></html>

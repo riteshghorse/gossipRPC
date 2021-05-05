@@ -8,8 +8,8 @@
 <td valign=bottom>&nbsp;<br>
 <font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>SynVerbHandler</strong></big></big></font></td
 ><td align=right valign=bottom
-><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/ritesh/gossipRPC/SynVerbHandler.py">/home/ritesh/gossipRPC/SynVerbHandler.py</a></font></td></tr></table>
-    <p></p>
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/ritesh/gossipRPC/handlers/SynVerbHandler.py">/home/ritesh/gossipRPC/handlers/SynVerbHandler.py</a></font></td></tr></table>
+    <p><tt>Author:&nbsp;Shreyas&nbsp;M</tt></p>
 <p>
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
 <tr bgcolor="#ee77aa">
@@ -35,9 +35,15 @@
 <td width="100%">Methods defined here:<br>
 <dl><dt><a name="SynVerbHandler-__init__"><strong>__init__</strong></a>(self, arg)</dt><dd><tt>Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</tt></dd></dl>
 
-<dl><dt><a name="SynVerbHandler-examine_gossip"><strong>examine_gossip</strong></a>(self, gDigestList)</dt></dl>
+<dl><dt><a name="SynVerbHandler-examine_gossip"><strong>examine_gossip</strong></a>(self, gDigestList)</dt><dd><tt>Authors:&nbsp;Shreyas&nbsp;M<br>
+:param&nbsp;gDigestList:&nbsp;&nbsp;&nbsp;&nbsp;List&nbsp;of&nbsp;active&nbsp;nodes&nbsp;in&nbsp;cluster&nbsp;and&nbsp;meta&nbsp;state&nbsp;information<br>
+&nbsp;<br>
+Update&nbsp;endpoint&nbsp;state&nbsp;map&nbsp;based&nbsp;on&nbsp;the&nbsp;heard&nbsp;beat&nbsp;generation&nbsp;and&nbsp;heartbeat&nbsp;value.</tt></dd></dl>
 
-<dl><dt><a name="SynVerbHandler-handleSync"><strong>handleSync</strong></a>(self, synDigestMessage)</dt></dl>
+<dl><dt><a name="SynVerbHandler-handleSync"><strong>handleSync</strong></a>(self, synDigestMessage)</dt><dd><tt>Authors:&nbsp;Shreyas&nbsp;M<br>
+:param&nbsp;synDigestMessage:&nbsp;&nbsp;&nbsp;&nbsp;Message&nbsp;digest&nbsp;shared&nbsp;during&nbsp;gossip&nbsp;or&nbsp;handshake.<br>
+&nbsp;<br>
+Extract&nbsp;the&nbsp;digest&nbsp;list&nbsp;from&nbsp;message&nbsp;digest&nbsp;and&nbsp;update&nbsp;my&nbsp;end&nbsp;point&nbsp;statemap&nbsp;accordingly.</tt></dd></dl>
 
 <hr>
 Data descriptors defined here:<br>

@@ -8,8 +8,8 @@
 <td valign=bottom>&nbsp;<br>
 <font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>AckVerbHandler</strong></big></big></font></td
 ><td align=right valign=bottom
-><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/ritesh/gossipRPC/AckVerbHandler.py">/home/ritesh/gossipRPC/AckVerbHandler.py</a></font></td></tr></table>
-    <p></p>
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/ritesh/gossipRPC/handlers/AckVerbHandler.py">/home/ritesh/gossipRPC/handlers/AckVerbHandler.py</a></font></td></tr></table>
+    <p><tt>Author:&nbsp;Shreyas&nbsp;M</tt></p>
 <p>
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
 <tr bgcolor="#aa55cc">
@@ -17,7 +17,7 @@
 <font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
     
 <tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
-<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="Constants.html">Constants</a><br>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="utilities.Constants.html">utilities.Constants</a><br>
 </td><td width="25%" valign=top></td><td width="25%" valign=top></td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
 <tr bgcolor="#ee77aa">
@@ -45,7 +45,12 @@
 
 <dl><dt><a name="AckVerbHandler-setEpStateMap"><strong>setEpStateMap</strong></a>(self, deltaGDigest)</dt></dl>
 
-<dl><dt><a name="AckVerbHandler-updateEpStateMap"><strong>updateEpStateMap</strong></a>(self, deltaEpStateMap, clientIp)</dt></dl>
+<dl><dt><a name="AckVerbHandler-updateEpStateMap"><strong>updateEpStateMap</strong></a>(self, deltaEpStateMap, clientIp)</dt><dd><tt>Authors:&nbsp;Shreyas&nbsp;M<br>
+:param&nbsp;deltaEpStateMap:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Provides&nbsp;the&nbsp;endpoint&nbsp;state&nbsp;map&nbsp;for&nbsp;nodes&nbsp;that&nbsp;I&nbsp;don't&nbsp;have<br>
+:param&nbsp;clientIp:&nbsp;&nbsp;&nbsp;&nbsp;IP&nbsp;of&nbsp;sender&nbsp;node<br>
+&nbsp;<br>
+Updates&nbsp;values&nbsp;for&nbsp;meta-app&nbsp;state&nbsp;in&nbsp;endpoint&nbsp;state&nbsp;map&nbsp;and&nbsp;gossip&nbsp;digest&nbsp;list.<br>
+updates&nbsp;the&nbsp;last&nbsp;update&nbsp;time&nbsp;based&nbsp;on&nbsp;the&nbsp;delta&nbsp;end&nbsp;point&nbsp;state&nbsp;receoved.</tt></dd></dl>
 
 <hr>
 Data descriptors defined here:<br>
