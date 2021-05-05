@@ -17,6 +17,14 @@ class AckVerbHandler(object):
                 
 
     def updateEpStateMap(self, deltaEpStateMap, clientIp):
+        """
+        Authors: Shreyas M
+        :param deltaEpStateMap:     Provides the endpoint state map for nodes that I don't have
+        :param clientIp:    IP of sender node
+
+        Updates values for meta-app state in endpoint state map and gossip digest list.
+        updates the last update time based on the delta end point state receoved.
+        """
         for ip, epState in deltaEpStateMap.items():
             #update by comparing which has the latest heartbeat
             if ip in self.node.endpoint_state_map:

@@ -1,3 +1,9 @@
+"""
+Author: Shreyas M, Ritesh G, Tanvi P
+
+Common source to initialize the variable across all modules
+"""
+
 STATUS_NORMAL = "Normal"
 STATUS_DOWN = "Down"
 

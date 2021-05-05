@@ -1,5 +1,6 @@
-
-
+"""
+Author: Shreyas M
+"""
 from handlers.SynGossipDigest import *
 from collections import defaultdict
 
@@ -9,7 +10,12 @@ class SynVerbHandler(object):
         self.node = arg
 
     def handleSync(self, synDigestMessage):
-        
+        """
+        Authors: Shreyas M
+        :param synDigestMessage:    Message digest shared during gossip or handshake.
+
+        Extract the digest list from message digest and update my end point statemap accordingly.
+        """
         gDigestList = SynGossipDigest.getGossipDigest(synDigestMessage)
         deltaGDigest = list()
         deltaEpStateMap = defaultdict()
@@ -22,7 +28,12 @@ class SynVerbHandler(object):
 
     
     def examine_gossip(self,gDigestList):
+        """
+        Authors: Shreyas M
+        :param gDigestList:    List of active nodes in cluster and meta state information
 
+        Update endpoint state map based on the heard beat generation and heartbeat value.
+        """
         deltaGDigest = list()
         deltaEpStateMap = {self.node.ip: self.node.endpoint_state_map[self.node.app_state['IP_Port']]}
         # print('gdigest', gDigestList)
