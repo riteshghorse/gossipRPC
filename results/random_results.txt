@@ -1,0 +1,71 @@
+
+
+------------- Consensus Achieved --------------
+Test Case for Single Node failure
+Run time for detection: 8.365068091996363
+Total Messages exchanged for consensus: 1179
+False Failure Detection Count: 0
+Total number of nodes in cluster: 8
+
+
+------------- Consensus Achieved --------------
+Test Case for Simultaneous Failure
+Run time for detection: 53.95534928700363
+Total Messages exchanged for consensus: 6677
+False Failure Detection Count: 8
+Total number of nodes in cluster: 8
+
+
+------------- Consensus Achieved --------------
+Test Case for Dead Node becomes Alive
+Run time for detection: 107.38087180000002
+Total Messages exchanged for consensus: 12376
+False Failure Detection Count: 13
+Total number of nodes in cluster: 8
+
+
+------------ Consensus Achieved --------------
+Test Case for Single Node failure
+Run time for detection: 7.826167100000021
+Total Messages exchanged for consensus: 1581
+False Failure Detection Count: 0
+Total number of nodes in cluster: 16
+
+------------- Consensus Achieved --------------
+Test Case for Simultaneous Failure
+Run time for detection: 78.2344598242345
+Total Messages exchanged for consensus: 9459
+False Failure Detection Count: 8
+Total number of nodes in cluster: 16
+
+
+------------- Consensus Achieved --------------
+Test Case for Dead Node becomes Alive
+Run time for detection: 142.324889299247
+Total Messages exchanged for consensus: 18394
+False Failure Detection Count: 13
+Total number of nodes in cluster: 16
+
+
+------------- Consensus Achieved --------------
+Test Case for Single Node failure
+Run time for detection: 9.471585499999492
+Total Messages exchanged for consensus: 1962
+False Failure Detection Count: 38
+Total number of nodes in cluster: 32
+
+
+------------- Consensus Achieved --------------
+Test Case for Simultaneous Failure
+Run time for detection: 112.117173200000252
+Total Messages exchanged for consensus: 11976
+False Failure Detection Count: 47
+Total number of nodes in cluster: 32
+
+
+------------- Consensus Achieved --------------
+Test Case for Dead Node becomes Alive
+Run time for detection: 252.824741200000062
+Total Messages exchanged for consensus: 22394
+False Failure Detection Count: 123
+Total number of nodes in cluster: 32

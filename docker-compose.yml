@@ -1,64 +1,63 @@
 version: "3.8"
 
 services:
-  monitor-node:
-      image: gossip
-      container_name: monitor-node
-      stdin_open: true # docker run -i
-      tty: true 
-      command: 
-        - /bin/bash
-      networks: 
-        - gossip-network
+  # monitor-node:
+  #     image: gossip
+  #     container_name: monitor-node
+  #     stdin_open: true # docker run -i
+  #     tty: true 
+  #     command: 
+  #       - /bin/bash
+  #     networks: 
+  #       - gossip-network
   
-  provider-node:
-    image: gossip 
-    container_name: provider-node
-    stdin_open: true # docker run -i
-    tty: true 
-    command: 
-    - /bin/bash
-    networks: 
-      - gossip-network
+  # provider-node:
+  #   image: gossip 
+  #   container_name: provider-node
+  #   stdin_open: true # docker run -i
+  #   tty: true 
+  #   command: 
+  #   - /bin/bash
+  #   networks: 
+  #     - gossip-network
 
-  node1:
-    image: gossip
-    container_name: node1
-    stdin_open: true # docker run -i
-    tty: true 
-    command: 
-    - /bin/bash
-    networks: 
-      - gossip-network
+  # node1:
+  #   image: gossip
+  #   container_name: node1
+  #   stdin_open: true # docker run -i
+  #   tty: true 
+  #   command: 
+  #   - /bin/bash
+  #   networks: 
+  #     - gossip-network
 
-  node2:
-    image: gossip
-    container_name: node2
-    stdin_open: true # docker run -i
-    tty: true 
-    command: 
-    - /bin/bash
-    networks: 
-      - gossip-network
+  # node2:
+  #   image: gossip
+  #   container_name: node2
+  #   stdin_open: true # docker run -i
+  #   tty: true 
+  #   command: 
+  #   - /bin/bash
+  #   networks: 
+  #     - gossip-network
 
   node:
     image: gossip
     stdin_open: true # docker run -i
     tty: true 
-    command: 
-    - /bin/bash
+    command: ["python", "gossip_server.py"]
     networks: 
       - gossip-network
   
-  flask-app:
-    build: 
-      context: ./flask-app
-    ports:
-      - "5000:5000"
-    networks: 
-      - gossip-network
-    depends_on: 
-      - monitor-node
+  # flask-app:
+  #   build: 
+  #     context: ./flask-app
+  #   ports:
+  #     - "5000:5000"
+  #   networks: 
+  #     - gossip-network
+  #   depends_on: 
+  #     - monitor-node
 
 networks: 
   gossip-network:

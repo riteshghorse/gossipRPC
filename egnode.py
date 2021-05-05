@@ -1,3 +1,4 @@
+# Authors: Shreyas M, Ritesh G, Tanvi P
 
 import copy
 import datetime
@@ -6,13 +7,12 @@ import threading
 import xmlrpc.client
 from random import sample
 
-import Constants
-from configuration_manager import ConfigurationManager
-from SynGossipDigest import *
-from SynVerbHandler import *
-from AckVerbHandler import *
-from Ack2VerbHandler import *
-from utils import *
+import utilities.Constants as Constants
+from handlers.SynGossipDigest import *
+from handlers.SynVerbHandler import *
+from handlers.AckVerbHandler import *
+from handlers.Ack2VerbHandler import *
+from utilities.utils import *
 
 
  
@@ -22,13 +22,17 @@ provider_node =  xmlrpc.client.ServerProxy('http://' + Constants.PROVIDER_ADDRES
 class Node(object):
 
     def __init__(self, host, port, id):
-        self.ip = str(host) + ':' + str(port)
+        """
+        Author: Ritesh G
 
+        Initialization of Data Structures maintained at every node.
+
+        """
+        self.ip = str(host) + ':' + str(port)
         self.heart_beat_state = {"heartBeatValue": Constants.INITIAL_HEARTBEAT, "generation": getCurrentGeneration()} 
         self.app_state = {"IP_Port": str(host)+':'+str(port) , "App_version": Constants.APP_VERSION_DEFAULT, "App_status": Constants.STATUS_NORMAL}
         self.endpoint_state_map = {self.app_state["IP_Port"]: {'heartBeat': self.heart_beat_state, 'appState':self.app_state, 'last_updated_time': getTimeStamp()}}
         self.gDigestList = {self.app_state['IP_Port'] : [self.app_state['App_version'], self.heart_beat_state['generation'], self.heart_beat_state['heartBeatValue']]} 
-        #{IP_Port:{'heartBeat':[version, generation], 'appState':[]}
                 
         self.fault_vector = {self.ip:0}  
         self.live_nodes = list(self.ip)
@@ -51,9 +55,11 @@ class Node(object):
 
     def sendSYN(self, sendTo):
         """
-        sends SYN. Starts gossiping
+        Author: Shreyas M
+        
+        :param sendTo: IP address of node to initiate the handshake.
 
-        Note: If only one node is present in gDigestList
+        First step of handshake. Sends SYN.
         """
         self.message_count += 1
         synDigest = SynGossipDigest(Constants.DEFAULT_CLUSTER, self.gDigestList)
@@ -66,6 +72,15 @@ class Node(object):
         
 
     def acceptSyn(self,synDigest, clientIp):
+        """
+        Author: Shreyas M
+
+        :param synDigest: List of IPs that the sender knows
+        :param clientIP: sender IP
+
+        Sends out the accept ACK along with delta list of nodes it needs the endpoint state map of.
+        
+        """
         self.message_count += 1
         variable = SynVerbHandler(self)
         deltaGDigest, deltaEpStateMap = variable.handleSync(synDigest)
@@ -101,6 +116,15 @@ class Node(object):
 
 
     def acceptAck(self, deltaGDigest, deltaEpStateMap, clientIp):
+        """
+        Author: Shreyas M
+
+        :param deltaGDigest: List of IPs for which client needs the endpoint State map 
+        :param deltaEpStateMap: List of endpoint statemap of IPs that I don't know.
+        :param clientIP: sender IP
+        
+        Sends back the endpoint statempa of the requested IPs
+        """
         print('\nIn Accept ACK')
         self.message_count += 1
         epStateMap = {}
@@ -143,6 +167,15 @@ class Node(object):
 
 
     def acceptAck2(self, deltaEpStateMap, clientIp):
+        """
+        Author: Shreyas M
+
+        :param deltaEpStateMap: List of endpoint statemap of IPs that I don't know.
+        :param clientIP: sender IP
+
+        Updates my own end point statemap as suggested by client IP
+        
+        """
         print('\n in Accept Ack 2')
         self.message_count += 1
 
@@ -187,6 +220,14 @@ class Node(object):
             return False
 
     def initiateRandomGossip(self):
+        """
+        Author: Tanvi P
+        :params None
+
+        Create a copy of the gossipList with each node and randomly select a single node to send gossip.
+        Initiate a gossip with the randomly selected node
+
+        """
         digestList = copy.deepcopy(self.gDigestList)
 
         digestList.pop(self.ip, None)
@@ -211,6 +252,15 @@ class Node(object):
         
 
     def initiateRRGossip(self): 
+        """
+        Author: Shreyas M
+
+        Implementation of Round Robin Gossip Algorithm
+
+        It keeps track of the node list and gossips based on the index of list in each round in round robin fashion.
+        rr_index provides the index to gossip in each round
+
+        """
         if self.rr_index == 0:
             self.rr_list = copy.deepcopy(self.gDigestList)
             self.rr_list.pop(self.ip, None)
@@ -220,7 +270,6 @@ class Node(object):
 
         from gossip_server import scheduleGossip, scheduler
 
-        #print('In round: '+str(self.rr_index))
         keyList = list(self.rr_list.keys() - self.ip)
 
         self.message_count += 1
@@ -235,21 +284,28 @@ class Node(object):
         else:
             print('------> Initiate Handshake for: '+ip)
             self.sendSYN(ip)
+
+        # Update to rr_index for the key list based on the round robin algorithm.
         self.rr_index =  (self.rr_index + 1) % len(self.rr_list)
-        #print('round robin ' + str(self.rr_index) + 'done')
 
     def initiateBinaryRRGossip(self):     
-        
+        """
+        Author: Ritesh G
+
+        Implementation of Binary Round Robin Gossip Algorithm.
+        It doesn't update the node list that follows the round robin order unless all indexes
+        in current list are processed. Special formula is used in calculating destination
+        node index.
+
+        Sends a normal gossip if already done with handshake. Else does the handshake first.
+        """
         if len(self.rr_list)==0 or self.rr_round-1 > math.log2(len(self.rr_list)):
             self.rr_list = provider_node.getMapping()
             self.rr_index = self.rr_list.index(self.ip) + 1
             self.rr_round = 0
             print('------ Starting Binary Round Robin Rounds -------')
 
-        from gossip_server import scheduleGossip, scheduler
-
-        #print('In round: '+str(self.rr_round))
-        self.message_count += 1
+        self.message_count += 1         # used in monitoring node
         ip = self.rr_list[(self.rr_index)%len(self.rr_list)]
         
         if self.isInHandshake(ip):
@@ -265,26 +321,30 @@ class Node(object):
             self.sendSYN(ip)
         self.rr_index =  (self.rr_index + 2**(self.rr_round)) % len(self.rr_list)
         self.rr_round += 1
-        #print(self.rr_index)
-        #print('round robin ' + str(self.rr_round) + 'done')
 
 
     def initiateSCRRGossip(self):
-        print('--------- called scrr')
+        """
+        Author: Shreyas M
+
+        It keeps track of the node list and gossips based on the index of list in each round in round robin fashion.
+        rr_index provides the index to gossip in each round
+
+        On the receive gossip side it expects the gossip from specfic rr_index node if thats not received then it marks 
+        the node as potential failure. Shares this information with the monitor node.
+        
+        """
         if len(self.rr_list)==0 or self.rr_index ==  self.sc_index:
-            print('--------- reset the list')
             self.rr_list = provider_node.getMapping()
             self.sc_index = self.rr_list.index(self.ip)
             self.rr_index = (self.sc_index + 1) % len(self.rr_list)
 
         from gossip_server import scheduleGossip, scheduler
+        # Update to rr_index for the rr list from provider based on the round robin algorithm.
         self.rr_round = (self.rr_index - self.sc_index + len(self.rr_list))%len(self.rr_list)
-        #print('In round: '+str(self.rr_round))
         
         self.message_count += 1
         ip = self.rr_list[self.rr_index]
-        print('--------- trying to send: ', ip)
-        print('--------- handshake: ', self.handshake_nodes)
         if self.isInHandshake(ip):
             try:
                 print("I'm gossiping to--> ", ip)
@@ -295,13 +355,20 @@ class Node(object):
         else:
             print('------> Initiate Handshake for: '+ip)
             self.sendSYN(ip)
-        print('--------- sent scrr')
         self.rr_index =  (self.rr_index + 1) % len(self.rr_list)
-        #print('round robin ' + str(self.rr_round) + 'done')
+        
 
 
 
     def startGossip(self, gossip_protocol):
+        """
+        Author: Tanvi P
+        
+        Making a single application run multiple protocols via command line argument
+        :param gossip_protocol: Type of protocol to run
+        :return: returns nothing
+        
+        """
         if gossip_protocol == Constants.RANDOM_GOSSIP:
             self.initiateRandomGossip()
 
@@ -337,8 +404,10 @@ class Node(object):
         """
 
         print('++++> Gossip received from--> ' + clientIp)
-        # print('my digest', self.gDigestList)
         if self.gossip_protocol == Constants.SCRR_GOSSIP:
+            # checks for missed gossip in previous round. 
+            # In this case, it is detected as FAIL
+
             indexOfClient = self.rr_list.index(clientIp)
             lastReceivedIp = self.rr_list[(indexOfClient + 1)%len(self.rr_list)]
             
@@ -360,7 +429,6 @@ class Node(object):
 
             
             if ip in self.gDigestList:
-                # print('if')
                 if self.gDigestList[ip][1] < digest[1]:
                     currenttList[ip] = digest
                     try:
@@ -391,6 +459,7 @@ class Node(object):
         print('as directed by: ', clientIp)    
 
         self.gDigestList = copy.deepcopy(currenttList)
+
         # updating timestamp for clientIp
         if clientIp in self.endpoint_state_map:
             self.updateAliveStatus(clientIp, clientIp)
