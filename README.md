@@ -25,6 +25,18 @@
 10. Test Cases: Each of ous tested our implemented protocols. Sequence Check was divided evenly for test cases.
 
 
+## System Architecture and Gossip Protocols
+**System Architecture:** ![image](https://user-images.githubusercontent.com/39837416/117369409-dfe95080-ae92-11eb-8087-a634f237230f.png)  
+
+**Random Gossip:**
+![](Protocol-gifs/Random.gif)
+
+**Round Robin Gossip:**
+![](Protocol-gifs/Round_Robin.gif)
+
+**Binary Round Robin Gossip:**
+![](Protocol-gifs/Binary_Round_Robin.gif)
+
 
 ## Sample commands for running 8-node system
 ```
