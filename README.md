@@ -111,11 +111,6 @@ python gossip_server.py
 
 
 
-
-## Results
-Sample results are shown under results directory.
-
-
 ## Steps for running Docker-Compose
 
 1. ### Build image of the application
