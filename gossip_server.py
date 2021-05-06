@@ -1,8 +1,8 @@
 # Authors: Shreyas M, Ritesh G, Tanvi P
-'''
-Starting point for the nodes. Implementation for starting, stopping and scheduling gossip as well as registering other nodes is written.
-Done via XML RPC
-'''
+
+#Starting point for the nodes. Implementation for starting, stopping and scheduling gossip as well as registering other nodes is written.
+#Done via XML RPC
+
 
 import os
 from gossip_rpc.rpc_config import XMLRPCGossipManager
